@@ -3,9 +3,9 @@
 # Define server logic required to draw a histogram
 shinyServer(function(session, input, output) {
   
-  ## update the county drop down menu based on the selection of the state drop down menu
+  # # update the county drop down menu based on the selection of the state drop down menu
   # observe({
-  #   updateSelectInput(session, "county", "Select or type in one county", 
+  #   updateSelectInput(session, "county", "Select or type in one county",
   #                     choices = us_county_covid[us_county_covid$STATE_NAME == input$state,]$NAME)
   # })
   
@@ -36,14 +36,21 @@ shinyServer(function(session, input, output) {
       filter(metro_status %in% input$metro)
     
     # filter data based on state
-    # if("United States" %in% input$state){
-    #   data_filtered <- data_filtered
-    # }
-    # else{
-    #   data_filtered <- data_filtered %>% 
-    #     filter(STATE_NAME %in% input$state)
-    # }
+    if("United States" %in% input$state){
+      data_filtered <- data_filtered
+    }
+    else{
+      data_filtered <- data_filtered %>%
+        filter(STATE_NAME %in% input$state)
+    }
     
+    # labels for the map popup
+    labels <- paste(
+      "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Vaccination Percentage: ", data_filtered$series_complete_pop_pct,"%<br/>"
+    ) %>% lapply(htmltools::HTML)
+    
+    # Vaccination
     if ( input$data_type == "Vaccination"){
       
       # palette 
@@ -78,19 +85,23 @@ shinyServer(function(session, input, output) {
         )
     }
     
+    # Hopitalization
     if (input$data_type == "Hospitalizations per 100k Last 7 Days"){
       
       # palette 
       bins <- c(0, 25, 50, 75, 100)
-      mypal <- colorBin("Reds", domain = us_county_covid$conf_covid_admit_100k_last_7, bins = bins)
+      mypal <- colorBin("Reds", domain = data_filtered$conf_covid_admit_100k_last_7, bins = bins)
       
       #leafletProxy map
-      leafletProxy("map", data = us_county_covid) %>% 
+      leafletProxy("map", data = data_filtered) %>% 
         clearControls() %>% 
         clearShapes() %>% 
+        addControl(
+          actionButton("reset_button", "Reset"),
+          position="topleft") %>%
         addPolygons(
-          data = us_county_covid,
-          fillColor = ~mypal(us_county_covid$conf_covid_admit_100k_last_7),
+          data = data_filtered,
+          fillColor = ~mypal(data_filtered$conf_covid_admit_100k_last_7),
           color ="black",
           stroke = T,
           smoothFactor = 0.2,
@@ -103,7 +114,7 @@ shinyServer(function(session, input, output) {
         addLegend(
           position = "topright",
           pal= mypal,
-          values = us_county_covid$conf_covid_admit_100k_last_7,
+          values = data_filtered$conf_covid_admit_100k_last_7,
           title = "Hospitalizations per 100k Last 7 Days",
           opacity = 1
         )

@@ -50,18 +50,19 @@ shinyUI(
         ),
         selectInput(
           inputId = "state",
-          label = "Select or type in one state",
+          label = "Select or type in one or multiple states",
           choices = c("United States", us_county_covid %>%
                         pull(STATE_NAME) %>%
                         unique() %>%
                         sort()),
-          selected = "United States"
+          selected = "United States",
+          multiple = T
         ),
-        selectInput(
-          inputId = "county",
-          label = "Select or type in one county",
-          choices = NULL
-        ),
+        # selectInput(
+        #   inputId = "county",
+        #   label = "Select or type in one county",
+        #   choices = NULL
+        # ),
         selectInput(
           inputId = "age",
           label = "Select one age group",

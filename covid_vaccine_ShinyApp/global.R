@@ -42,8 +42,4 @@ us_county_covid <- us_county_covid %>%
 # simplify polygons
 us_county_covid <- rmapshaper::ms_simplify(us_county_covid, keep = 0.05, keep_shapes = TRUE)
 
-# labels for the map popup
-labels <- paste(
-  "<strong>",us_county_covid$NAME,", ", us_county_covid$STATE_NAME, "</strong><br/>",
-  "Vaccination Percentage: ", us_county_covid$series_complete_pop_pct,"%<br/>"
-) %>% lapply(htmltools::HTML)
+
