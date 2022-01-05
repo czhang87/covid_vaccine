@@ -36,8 +36,16 @@ us_county_covid <- left_join(us_county, covid_vaccination, by = c("FIPS"="fips")
 us_county_covid <- left_join(us_county_covid, case_hospitalization_death, by = c("FIPS"="FIPS_code"))
 
 # remove na value
-us_county_covid <- us_county_covid %>%
-  filter(is.na(series_complete_pop_pct) == FALSE)
+# us_county_covid <- us_county_covid %>%
+#   filter(is.na(series_complete_pop_pct) == FALSE)
+
+# calculate and add booster_doses_pop_pct column, fill na with zero
+us_county_covid <- us_county_covid %>% 
+  mutate(booster_doses_pop_pct = round(booster_doses/(series_complete_yes/series_complete_pop_pct), 1)) %>% 
+  replace_na(list(series_complete_pop_pct = 0,
+                  administered_dose1_pop_pct= 0,
+                  booster_doses_pop_pct =0 )
+  )
 
 # simplify polygons
 us_county_covid <- rmapshaper::ms_simplify(us_county_covid, keep = 0.05, keep_shapes = TRUE)
