@@ -8,47 +8,92 @@ shinyServer(function(session, input, output) {
   #                     choices = us_county_covid[us_county_covid$STATE_NAME == input$state,]$NAME)
   # })
   
+  # Initial view
   initial_lat = 39.8283
   initial_lng = -98.5795
   initial_zoom = 4
   
+  # Leaflet map
+  output$map <- renderLeaflet({
+    leaflet() %>%
+      addProviderTiles("OpenStreetMap.Mapnik")%>%
+      setView(lat = initial_lat, lng = initial_lng, zoom = initial_zoom)
+  })
   
+  # Reset button in the map
   observe({
     input$reset_button
     leafletProxy("map") %>% setView(lat = initial_lat, lng = initial_lng, zoom = initial_zoom)
   })
   
-  bins <- c(0, 25, 50, 75, 100)
-  mypal <- colorBin("Blues", domain = us_county_covid$series_complete_pop_pct, bins = bins)
-  
-  output$map <- renderLeaflet({
+  # Choropleth based on data types using leafletProxy in observe({})
+  observe({
+    if ( input$data_type == "Vaccination"){
+      
+      # palette 
+      bins <- c(0, 25, 50, 75, 100)
+      mypal <- colorBin("Blues", domain = us_county_covid$series_complete_pop_pct, bins = bins)
+      
+      #leafletProxy map
+      leafletProxy("map", data = us_county_covid) %>% 
+        clearControls() %>% # clear the map legend
+        clearShapes() %>% # clear polygons fill color
+        addControl(
+          actionButton("reset_button", "Reset"),
+          position="topleft") %>% # add Reset View button in the map
+        addPolygons(
+          data = us_county_covid,
+          fillColor = ~mypal(us_county_covid$series_complete_pop_pct),
+          color ="black",
+          stroke = T,
+          smoothFactor = 0.2,
+          fillOpacity = 0.75,
+          weight = 1,
+          highlightOptions = highlightOptions(fillColor = "black",
+                                              bringToFront = TRUE),
+          label = labels
+        ) %>%
+        addLegend(
+          position = "topright",
+          pal= mypal,
+          values = us_county_covid$series_complete_pop_pct,
+          title = "Vaccination Percentage",
+          opacity = 1
+        )
+    }
     
-    leaflet() %>%
-      addProviderTiles("OpenStreetMap.Mapnik")%>%
-      setView(lat = initial_lat, lng = initial_lng, zoom = initial_zoom) %>%
-      addPolygons(
-        data = us_county_covid,
-        fillColor = ~mypal(us_county_covid$series_complete_pop_pct),
-        color ="black",
-        stroke = T,
-        smoothFactor = 0.2,
-        fillOpacity = 0.5,
-        weight = 1,
-        highlightOptions = highlightOptions(fillColor = "black",
-                                            bringToFront = TRUE),
-        label = labels
-      ) %>%
-      addLegend(
-        position = "topright",
-        pal= mypal,
-        values = us_county_covid$series_complete_pop_pct,
-        title = "Vaccination Percentage",
-        opacity = 1
-      ) %>% 
-      addControl(
-        actionButton("reset_button", "Reset"),
-        position="topleft")
-    
+    if (input$data_type == "Hospitalizations per 100k Last 7 Days"){
+      
+      # palette 
+      bins <- c(0, 25, 50, 75, 100)
+      mypal <- colorBin("Reds", domain = us_county_covid$conf_covid_admit_100k_last_7, bins = bins)
+      
+      #leafletProxy map
+      leafletProxy("map", data = us_county_covid) %>% 
+        clearControls() %>% 
+        clearShapes() %>% 
+        addPolygons(
+          data = us_county_covid,
+          fillColor = ~mypal(us_county_covid$conf_covid_admit_100k_last_7),
+          color ="black",
+          stroke = T,
+          smoothFactor = 0.2,
+          fillOpacity = 0.75,
+          weight = 1,
+          highlightOptions = highlightOptions(fillColor = "black",
+                                              bringToFront = TRUE),
+          label = labels
+        ) %>%
+        addLegend(
+          position = "topright",
+          pal= mypal,
+          values = us_county_covid$conf_covid_admit_100k_last_7,
+          title = "Hospitalizations per 100k Last 7 Days",
+          opacity = 1
+        )
+    }
   })
+  
+  
   
 })
