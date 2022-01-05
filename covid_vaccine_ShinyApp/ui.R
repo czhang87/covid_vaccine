@@ -45,16 +45,17 @@ shinyUI(
         checkboxGroupInput(
           inputId = "metro",
           label = "Select the Metropolitan Status",
-          choices = c( "Metropolitan Counties" , "Non-Metropolitan Counties"),
-          selected = c( "Metropolitan Counties" , "Non-Metropolitan Counties")
+          choices = c("Metro" , "Non-metro"),
+          selected = c("Metro" , "Non-metro")
         ),
         selectInput(
           inputId = "state",
           label = "Select or type in one state",
-          choices = c(us_county_covid %>%
+          choices = c("United States", us_county_covid %>%
                         pull(STATE_NAME) %>%
                         unique() %>%
-                        sort())
+                        sort()),
+          selected = "United States"
         ),
         selectInput(
           inputId = "county",
