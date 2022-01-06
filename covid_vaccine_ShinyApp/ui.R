@@ -66,7 +66,7 @@ shinyUI(
         selectInput(
           inputId = "age",
           label = "Select one age group",
-          choices = c("≥ 5 Years", "≥ 12 Years", "≥ 18 Years", "≥ 65 Years")
+          choices = c("All Age Groups","≥ 5 Years", "≥ 12 Years", "≥ 18 Years", "≥ 65 Years")
         )
         
       )

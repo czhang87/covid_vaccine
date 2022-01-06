@@ -44,15 +44,91 @@ shinyServer(function(session, input, output) {
         filter(STATE_NAME %in% input$state)
     }
     
-
-    
-    # labels for the map popup
-    labels <- paste(
+    # labels of vaccination percentage for the map popup
+    labels_all_ages <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
       "At lease one dose:", data_filtered$administered_dose1_pop_pct, "%<br/>",
       "Fully vaccinated:", data_filtered$series_complete_pop_pct,"%<br/>",
-      "Booster dose:", data_filtered$booster_doses_pop_pct,"%<br/>"
+      "Booster dose:", data_filtered$booster_doses_pop_pct,"%<br/>",
+      "Metro status: ", data_filtered$metro_status,"<br/>",
+      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
     ) %>% lapply(htmltools::HTML)
+    
+    labels_5plus <- paste(
+      "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "At lease one dose:", data_filtered$administered_dose1_recip_5pluspop_pct, "%<br/>",
+      "Fully vaccinated:", data_filtered$series_complete_5pluspop_pct,"%<br/>",
+      "Booster dose:", data_filtered$booster_doses_pop_pct,"%<br/>",
+      "Metro status: ", data_filtered$metro_status,"<br/>",
+      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+    ) %>% lapply(htmltools::HTML)
+    
+    labels_12plus <- paste(
+      "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "At lease one dose:", data_filtered$administered_dose1_recip_12pluspop_pct, "%<br/>",
+      "Fully vaccinated:", data_filtered$series_complete_12pluspop,"%<br/>",
+      "Booster dose:", data_filtered$booster_doses_pop_pct,"%<br/>",
+      "Metro status: ", data_filtered$metro_status,"<br/>",
+      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+    ) %>% lapply(htmltools::HTML)
+    
+    labels_18plus <- paste(
+      "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "At lease one dose:", data_filtered$administered_dose1_recip_18pluspop_pct, "%<br/>",
+      "Fully vaccinated:", data_filtered$series_complete_18pluspop,"%<br/>",
+      "Booster dose:", data_filtered$booster_doses_18pluspop_pct,"%<br/>",
+      "Metro status: ", data_filtered$metro_status,"<br/>",
+      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+    ) %>% lapply(htmltools::HTML)
+    
+    labels_65plus <- paste(
+      "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "At lease one dose:", data_filtered$administered_dose1_recip_65pluspop_pct, "%<br/>",
+      "Fully vaccinated:", data_filtered$series_complete_65pluspop,"%<br/>",
+      "Booster dose:", data_filtered$booster_doses_65pluspop_pct,"%<br/>",
+      "Metro status: ", data_filtered$metro_status,"<br/>",
+      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+    ) %>% lapply(htmltools::HTML)
+    
+    # labels of cases
+    labels_cases <- paste(
+      "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Cases per 100k Last 7 Days:", data_filtered$Cases_per_100k_last_7_days,"<br/>",
+      "Metro status: ", data_filtered$metro_status,"<br/>",
+      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+    ) %>% lapply(htmltools::HTML)
+    
+    # labels of hospitalization
+    labels_hospitalizations <- paste(
+      "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Hospitalizations per 100k Last 7 Days:", data_filtered$conf_covid_admit_100k_last_7,"<br/>",
+      "Metro status: ", data_filtered$metro_status,"<br/>",
+      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+    ) %>% lapply(htmltools::HTML)
+    
+    # labels of deaths
+    labels_deaths <- paste(
+      "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Deaths per 100k Last 7 Days:", data_filtered$Deaths_per_100k_last_7_days,"<br/>",
+      "Metro status: ", data_filtered$metro_status,"<br/>",
+      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+    ) %>% lapply(htmltools::HTML)
+    
+    # # labels of vaccine hesitancy
+    # labels_hesitancy <- paste(
+    #   "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+    #   "Vaccine Hesitancy:", data_filtered$Deaths_per_100k_last_7_days,"<br/>",
+    #   "Metro status: ", data_filtered$metro_status,"<br/>",
+    #   "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+    # ) %>% lapply(htmltools::HTML)
+    
+    # labels of SVI
+    labels_svi <- paste(
+      "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Metro status: ", data_filtered$metro_status,"<br/>",
+      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+    ) %>% lapply(htmltools::HTML)
+    
     
     # Vaccination
     
@@ -80,7 +156,7 @@ shinyServer(function(session, input, output) {
             weight = 1,
             highlightOptions = highlightOptions(fillColor = "black",
                                                 bringToFront = TRUE),
-            label = labels
+            label = labels_all_ages
           ) %>%
           addLegend(
             position = "topright",
@@ -115,7 +191,7 @@ shinyServer(function(session, input, output) {
             weight = 1,
             highlightOptions = highlightOptions(fillColor = "black",
                                                 bringToFront = TRUE),
-            label = labels
+            label = labels_all_ages
           ) %>%
           addLegend(
             position = "topright",
@@ -150,7 +226,7 @@ shinyServer(function(session, input, output) {
             weight = 1,
             highlightOptions = highlightOptions(fillColor = "black",
                                                 bringToFront = TRUE),
-            label = labels
+            label = labels_all_ages
           ) %>%
           addLegend(
             position = "topright",
@@ -164,7 +240,7 @@ shinyServer(function(session, input, output) {
       
     }
     
-    # Hopitalization
+    # Hospitalization
     else if (input$data_type == "Hospitalizations per 100k Last 7 Days"){
       
       # palette
@@ -188,7 +264,7 @@ shinyServer(function(session, input, output) {
           weight = 1,
           highlightOptions = highlightOptions(fillColor = "black",
                                               bringToFront = TRUE),
-          label = labels
+          label = labels_hospitalizations
         ) %>%
         addLegend(
           position = "topright",
@@ -198,6 +274,29 @@ shinyServer(function(session, input, output) {
           opacity = 1
         )
     }
+    
+    # # Cases per 100k Last 7 Days
+    # else if(){
+    #   
+    # }
+    # 
+    # # Deaths per 100k Last 7 Days
+    # else if(){
+    #   
+    # }
+    # 
+    # # Vaccine Hesitancy
+    # else if(){
+    #   
+    # }
+    # 
+    # # CDC SVI
+    # else{
+    #   
+    # }
+    
+    
+    
   })
   
   

@@ -41,7 +41,15 @@ us_county_covid <- left_join(us_county_covid, case_hospitalization_death, by = c
 
 # calculate and add booster_doses_pop_pct column, fill na with zero
 us_county_covid <- us_county_covid %>% 
-  mutate(booster_doses_pop_pct = round(booster_doses/(series_complete_yes/series_complete_pop_pct), 1)) %>% 
+  mutate(booster_doses_pop_pct = round(booster_doses/(series_complete_yes/series_complete_pop_pct), 1),
+         booster_doses_18pluspop_pct = round(booster_doses_18plus/(series_complete_18plus/series_complete_18pluspop), 1),
+         booster_doses_65pluspop_pct = round(booster_doses_65plus/(series_complete_65plus/series_complete_65pluspop), 1),
+         svi_num = recode(svi_ctgy,
+                          "A" = 0.25,
+                          "B" = 0.5,
+                          "C" = 0.75,
+                          "D" = 1
+         )) %>% 
   replace_na(list(series_complete_pop_pct = 0,
                   administered_dose1_pop_pct= 0,
                   booster_doses_pop_pct =0 )
