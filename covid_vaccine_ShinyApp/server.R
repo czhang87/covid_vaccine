@@ -142,6 +142,7 @@ shinyServer(function(session, input, output) {
     bins_cases <- round(quantile(unique(us_county_covid$Cases_per_100k_last_7_days), c(0,0.25,0.5,0.75,1)),0)
     bins_hospitalizations <- round(quantile(unique(us_county_covid$conf_covid_admit_100k_last_7), c(0,0.25,0.5,0.75,1)),0)
     bins_deaths <- round(quantile(unique(us_county_covid$Deaths_per_100k_last_7_days), c(0,0.25,0.5,0.75,1)),0)
+    bins_svi <- c(0, 0.26, 0.51, 0.76, 1)
     
     # Vaccination
     
@@ -697,40 +698,40 @@ shinyServer(function(session, input, output) {
     # }
     # 
     
-    # # CDC SVI
-    # else{
-    # 
-    #   # palette
-    #   
-    #   mypal <- colorBin("Reds", domain = data_filtered$Deaths_per_100k_last_7_days, bins = bins_deaths)
-    #   
-    #   #leafletProxy map
-    #   leafletProxy("map", data = data_filtered) %>%
-    #     clearControls() %>%
-    #     clearShapes() %>%
-    #     addControl(
-    #       actionButton("reset_button", "Reset"),
-    #       position="topleft") %>%
-    #     addPolygons(
-    #       data = data_filtered,
-    #       fillColor = ~mypal(data_filtered$Deaths_per_100k_last_7_days),
-    #       color ="black",
-    #       stroke = T,
-    #       smoothFactor = 0.2,
-    #       fillOpacity = 0.75,
-    #       weight = 1,
-    #       highlightOptions = highlightOptions(fillColor = "black",
-    #                                           bringToFront = TRUE),
-    #       label = labels_deaths
-    #     ) %>%
-    #     addLegend(
-    #       position = "topright",
-    #       pal= mypal,
-    #       values = data_filtered$Deaths_per_100k_last_7_days,
-    #       title = titles_deaths,
-    #       opacity = 1
-    #     )
-    # }
+    # CDC SVI
+    else{
+
+      # palette
+
+      mypal <- colorBin("Purples", domain = data_filtered$svi_num, bins = bins_svi)
+
+      #leafletProxy map
+      leafletProxy("map", data = data_filtered) %>%
+        clearControls() %>%
+        clearShapes() %>%
+        addControl(
+          actionButton("reset_button", "Reset"),
+          position="topleft") %>%
+        addPolygons(
+          data = data_filtered,
+          fillColor = ~mypal(data_filtered$svi_num),
+          color ="black",
+          stroke = T,
+          smoothFactor = 0.2,
+          fillOpacity = 0.75,
+          weight = 1,
+          highlightOptions = highlightOptions(fillColor = "black",
+                                              bringToFront = TRUE),
+          label = labels_svi
+        ) %>%
+        addLegend(
+          position = "topright",
+          pal= mypal,
+          values = data_filtered$svi_num,
+          title = titles_svi,
+          opacity = 1
+        )
+    }
     
     
     
