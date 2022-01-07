@@ -49,10 +49,21 @@ us_county_covid <- us_county_covid %>%
                           "B" = 0.5,
                           "C" = 0.75,
                           "D" = 1
-         )) %>% 
-  replace_na(list(series_complete_pop_pct = 0,
-                  administered_dose1_pop_pct= 0,
-                  booster_doses_pop_pct =0 )
+         )
+  ) %>% 
+  replace_na(list(administered_dose1_pop_pct= 0,
+                  series_complete_pop_pct = 0,
+                  booster_doses_pop_pct =0,
+                  administered_dose1_recip_5pluspop_pct =0,
+                  series_complete_5pluspop_pct=0,
+                  administered_dose1_recip_12pluspop_pct=0,
+                  series_complete_12pluspop=0,
+                  administered_dose1_recip_18pluspop_pct=0,
+                  series_complete_18pluspop = 0,
+                  booster_doses_18pluspop_pct = 0,
+                  administered_dose1_recip_65pluspop_pct=0,
+                  series_complete_65pluspop=0,
+                  booster_doses_65pluspop_pct=0 )
   )
 
 # simplify polygons

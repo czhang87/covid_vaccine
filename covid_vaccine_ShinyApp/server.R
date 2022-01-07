@@ -129,6 +129,17 @@ shinyServer(function(session, input, output) {
       "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
     ) %>% lapply(htmltools::HTML)
     
+    # Legend titles
+    titles_vaccination <- "Vaccination Percentage"
+    titles_cases<- "Cases per 100k Last 7 Days"
+    titles_hospitalizations <- "Hospitalizations per 100k Last 7 Days"
+    titles_deaths <- "Deaths per 100k Last 7 Days"
+    titles_hesitancy <- "Vaccine Hesitancy"
+    titles_svi <- "Social Vulnerability Index"
+    
+    # bins
+    bins_vaccination <- c(0, 25, 50, 75, 100)
+    bins_hospitalization <- c(0, 25, 50, 75, 100)
     
     # Vaccination
     
@@ -136,116 +147,449 @@ shinyServer(function(session, input, output) {
       
       # At least one dose
       if (input$vaccination_status == 'At Lease One Dose'){
-        bins <- c(0, 25, 50, 75, 100)
-        mypal <- colorBin("Blues", domain = data_filtered$administered_dose1_pop_pct, bins = bins)
         
-        #leafletProxy map
-        leafletProxy("map", data = data_filtered )%>%
-          clearControls() %>% # clear the map legend
-          clearShapes() %>% # clear polygons fill color
-          addControl(
-            actionButton("reset_button", "Reset"),
-            position="topleft") %>% # add Reset View button in the map
-          addPolygons(
-            data = data_filtered,
-            fillColor = ~mypal(data_filtered$administered_dose1_pop_pct),
-            color ="black",
-            stroke = T,
-            smoothFactor = 0.2,
-            fillOpacity = 0.75,
-            weight = 1,
-            highlightOptions = highlightOptions(fillColor = "black",
-                                                bringToFront = TRUE),
-            label = labels_all_ages
-          ) %>%
-          addLegend(
-            position = "topright",
-            pal= mypal,
-            values = data_filtered$administered_dose1_pop_pct,
-            title = "Vaccination Percentage",
-            opacity = 1
-          )
+        if (input$age == "All Age Groups"){
+          
+          # palette
+          mypal <- colorBin("Blues", domain = data_filtered$administered_dose1_pop_pct, bins = bins_vaccination)
+          
+          #leafletProxy map
+          leafletProxy("map", data = data_filtered )%>%
+            clearControls() %>% # clear the map legend
+            clearShapes() %>% # clear polygons fill color
+            addControl(
+              actionButton("reset_button", "Reset"),
+              position="topleft") %>% # add Reset View button in the map
+            addPolygons(
+              data = data_filtered,
+              fillColor = ~mypal(data_filtered$administered_dose1_pop_pct),
+              color ="black",
+              stroke = T,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              weight = 1,
+              highlightOptions = highlightOptions(fillColor = "black",
+                                                  bringToFront = TRUE),
+              label = labels_all_ages
+            ) %>%
+            addLegend(
+              position = "topright",
+              pal= mypal,
+              values = data_filtered$administered_dose1_pop_pct,
+              title = titles_vaccination,
+              opacity = 1
+            )
+        } 
+        
+        else if (input$age == "≥ 5 Years"){
+          # palette
+          mypal <- colorBin("Blues", domain = data_filtered$administered_dose1_recip_5pluspop_pct, bins = bins_vaccination)
+          
+          #leafletProxy map
+          leafletProxy("map", data = data_filtered )%>%
+            clearControls() %>% # clear the map legend
+            clearShapes() %>% # clear polygons fill color
+            addControl(
+              actionButton("reset_button", "Reset"),
+              position="topleft") %>% # add Reset View button in the map
+            addPolygons(
+              data = data_filtered,
+              fillColor = ~mypal(data_filtered$administered_dose1_recip_5pluspop_pct),
+              color ="black",
+              stroke = T,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              weight = 1,
+              highlightOptions = highlightOptions(fillColor = "black",
+                                                  bringToFront = TRUE),
+              label = labels_5plus
+            ) %>%
+            addLegend(
+              position = "topright",
+              pal= mypal,
+              values = data_filtered$administered_dose1_recip_5pluspop_pct,
+              title = titles_vaccination,
+              opacity = 1
+            )
+        } 
+        
+        else if (input$age == "≥ 12 Years"){
+          
+          # palette
+          mypal <- colorBin("Blues", domain = data_filtered$administered_dose1_recip_12pluspop_pct, bins = bins_vaccination)
+          
+          #leafletProxy map
+          leafletProxy("map", data = data_filtered )%>%
+            clearControls() %>% # clear the map legend
+            clearShapes() %>% # clear polygons fill color
+            addControl(
+              actionButton("reset_button", "Reset"),
+              position="topleft") %>% # add Reset View button in the map
+            addPolygons(
+              data = data_filtered,
+              fillColor = ~mypal(data_filtered$administered_dose1_recip_12pluspop_pct),
+              color ="black",
+              stroke = T,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              weight = 1,
+              highlightOptions = highlightOptions(fillColor = "black",
+                                                  bringToFront = TRUE),
+              label = labels_12plus
+            ) %>%
+            addLegend(
+              position = "topright",
+              pal= mypal,
+              values = data_filtered$administered_dose1_recip_12pluspop_pct,
+              title = titles_vaccination,
+              opacity = 1
+            )
+        } 
+        
+        else if(input$age == "≥ 18 Years"){
+          # palette
+          mypal <- colorBin("Blues", domain = data_filtered$administered_dose1_recip_18pluspop_pct, bins = bins_vaccination)
+          
+          #leafletProxy map
+          leafletProxy("map", data = data_filtered )%>%
+            clearControls() %>% # clear the map legend
+            clearShapes() %>% # clear polygons fill color
+            addControl(
+              actionButton("reset_button", "Reset"),
+              position="topleft") %>% # add Reset View button in the map
+            addPolygons(
+              data = data_filtered,
+              fillColor = ~mypal(data_filtered$administered_dose1_recip_18pluspop_pct),
+              color ="black",
+              stroke = T,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              weight = 1,
+              highlightOptions = highlightOptions(fillColor = "black",
+                                                  bringToFront = TRUE),
+              label = labels_18plus
+            ) %>%
+            addLegend(
+              position = "topright",
+              pal= mypal,
+              values = data_filtered$administered_dose1_recip_18pluspop_pct,
+              title = titles_vaccination,
+              opacity = 1
+            )
+        } 
+        
+        else {
+          # palette
+          mypal <- colorBin("Blues", domain = data_filtered$administered_dose1_recip_65pluspop_pct, bins = bins_vaccination)
+          
+          #leafletProxy map
+          leafletProxy("map", data = data_filtered )%>%
+            clearControls() %>% # clear the map legend
+            clearShapes() %>% # clear polygons fill color
+            addControl(
+              actionButton("reset_button", "Reset"),
+              position="topleft") %>% # add Reset View button in the map
+            addPolygons(
+              data = data_filtered,
+              fillColor = ~mypal(data_filtered$administered_dose1_recip_65pluspop_pct),
+              color ="black",
+              stroke = T,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              weight = 1,
+              highlightOptions = highlightOptions(fillColor = "black",
+                                                  bringToFront = TRUE),
+              label = labels_65plus
+            ) %>%
+            addLegend(
+              position = "topright",
+              pal= mypal,
+              values = data_filtered$administered_dose1_recip_65pluspop_pct,
+              title = titles_vaccination,
+              opacity = 1
+            )
+        }
       }
       
       # Fully vaccinated
       else if (input$vaccination_status == 'Fully Vaccinated'){
         
-        # palette
-        bins <- c(0, 25, 50, 75, 100)
-        mypal <- colorBin("Blues", domain = data_filtered$series_complete_pop_pct, bins = bins)
+        if (input$age == "All Age Groups"){
+          
+          # palette
+          
+          mypal <- colorBin("Blues", domain = data_filtered$series_complete_pop_pct, bins = bins_vaccination)
+          
+          #leafletProxy map
+          leafletProxy("map", data = data_filtered )%>%
+            clearControls() %>% # clear the map legend
+            clearShapes() %>% # clear polygons fill color
+            addControl(
+              actionButton("reset_button", "Reset"),
+              position="topleft") %>% # add Reset View button in the map
+            addPolygons(
+              data = data_filtered,
+              fillColor = ~mypal(data_filtered$series_complete_pop_pct),
+              color ="black",
+              stroke = T,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              weight = 1,
+              highlightOptions = highlightOptions(fillColor = "black",
+                                                  bringToFront = TRUE),
+              label = labels_all_ages
+            ) %>%
+            addLegend(
+              position = "topright",
+              pal= mypal,
+              values = data_filtered$series_complete_pop_pct,
+              title = titles_vaccination,
+              opacity = 1
+            )
+        } 
         
-        #leafletProxy map
-        leafletProxy("map", data = data_filtered )%>%
-          clearControls() %>% # clear the map legend
-          clearShapes() %>% # clear polygons fill color
-          addControl(
-            actionButton("reset_button", "Reset"),
-            position="topleft") %>% # add Reset View button in the map
-          addPolygons(
-            data = data_filtered,
-            fillColor = ~mypal(data_filtered$series_complete_pop_pct),
-            color ="black",
-            stroke = T,
-            smoothFactor = 0.2,
-            fillOpacity = 0.75,
-            weight = 1,
-            highlightOptions = highlightOptions(fillColor = "black",
-                                                bringToFront = TRUE),
-            label = labels_all_ages
-          ) %>%
-          addLegend(
-            position = "topright",
-            pal= mypal,
-            values = data_filtered$series_complete_pop_pct,
-            title = "Vaccination Percentage",
-            opacity = 1
-          )
+        else if (input$age == "≥ 5 Years"){
+          # palette
+          mypal <- colorBin("Blues", domain = data_filtered$series_complete_5pluspop_pct, bins = bins_vaccination)
+          
+          #leafletProxy map
+          leafletProxy("map", data = data_filtered )%>%
+            clearControls() %>% # clear the map legend
+            clearShapes() %>% # clear polygons fill color
+            addControl(
+              actionButton("reset_button", "Reset"),
+              position="topleft") %>% # add Reset View button in the map
+            addPolygons(
+              data = data_filtered,
+              fillColor = ~mypal(data_filtered$series_complete_5pluspop_pct),
+              color ="black",
+              stroke = T,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              weight = 1,
+              highlightOptions = highlightOptions(fillColor = "black",
+                                                  bringToFront = TRUE),
+              label = labels_5plus
+            ) %>%
+            addLegend(
+              position = "topright",
+              pal= mypal,
+              values = data_filtered$series_complete_5pluspop_pct,
+              title = titles_vaccination,
+              opacity = 1
+            )
+        } 
+        
+        else if (input$age == "≥ 12 Years"){
+          
+          # palette
+          mypal <- colorBin("Blues", domain = data_filtered$series_complete_12pluspop, bins = bins_vaccination)
+          
+          #leafletProxy map
+          leafletProxy("map", data = data_filtered )%>%
+            clearControls() %>% # clear the map legend
+            clearShapes() %>% # clear polygons fill color
+            addControl(
+              actionButton("reset_button", "Reset"),
+              position="topleft") %>% # add Reset View button in the map
+            addPolygons(
+              data = data_filtered,
+              fillColor = ~mypal(data_filtered$series_complete_12pluspop),
+              color ="black",
+              stroke = T,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              weight = 1,
+              highlightOptions = highlightOptions(fillColor = "black",
+                                                  bringToFront = TRUE),
+              label = labels_12plus
+            ) %>%
+            addLegend(
+              position = "topright",
+              pal= mypal,
+              values = data_filtered$series_complete_12pluspop,
+              title = titles_vaccination,
+              opacity = 1
+            )
+        } 
+        
+        else if(input$age == "≥ 18 Years"){
+          # palette
+          mypal <- colorBin("Blues", domain = data_filtered$series_complete_18pluspop, bins = bins_vaccination)
+          
+          #leafletProxy map
+          leafletProxy("map", data = data_filtered )%>%
+            clearControls() %>% # clear the map legend
+            clearShapes() %>% # clear polygons fill color
+            addControl(
+              actionButton("reset_button", "Reset"),
+              position="topleft") %>% # add Reset View button in the map
+            addPolygons(
+              data = data_filtered,
+              fillColor = ~mypal(data_filtered$series_complete_18pluspop),
+              color ="black",
+              stroke = T,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              weight = 1,
+              highlightOptions = highlightOptions(fillColor = "black",
+                                                  bringToFront = TRUE),
+              label = labels_18plus
+            ) %>%
+            addLegend(
+              position = "topright",
+              pal= mypal,
+              values = data_filtered$series_complete_18pluspop,
+              title = titles_vaccination,
+              opacity = 1
+            )
+        } 
+        
+        else {
+          # palette
+          mypal <- colorBin("Blues", domain = data_filtered$series_complete_65pluspop, bins = bins_vaccination)
+          
+          #leafletProxy map
+          leafletProxy("map", data = data_filtered )%>%
+            clearControls() %>% # clear the map legend
+            clearShapes() %>% # clear polygons fill color
+            addControl(
+              actionButton("reset_button", "Reset"),
+              position="topleft") %>% # add Reset View button in the map
+            addPolygons(
+              data = data_filtered,
+              fillColor = ~mypal(data_filtered$series_complete_65pluspop),
+              color ="black",
+              stroke = T,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              weight = 1,
+              highlightOptions = highlightOptions(fillColor = "black",
+                                                  bringToFront = TRUE),
+              label = labels_65plus
+            ) %>%
+            addLegend(
+              position = "topright",
+              pal= mypal,
+              values = data_filtered$series_complete_65pluspop,
+              title = titles_vaccination,
+              opacity = 1
+            )
+        }
       }
       
       # Booster dose
       else{
         
-        # palette
-        bins <- c(0, 25, 50, 75, 100)
-        mypal <- colorBin("Blues", domain = data_filtered$booster_doses_pop_pct, bins = bins)
+        if(input$age == "≥ 18 Years"){
+          # palette
+          mypal <- colorBin("Blues", domain = data_filtered$booster_doses_18pluspop_pct, bins = bins_vaccination)
+          
+          #leafletProxy map
+          leafletProxy("map", data = data_filtered )%>%
+            clearControls() %>% # clear the map legend
+            clearShapes() %>% # clear polygons fill color
+            addControl(
+              actionButton("reset_button", "Reset"),
+              position="topleft") %>% # add Reset View button in the map
+            addPolygons(
+              data = data_filtered,
+              fillColor = ~mypal(data_filtered$booster_doses_18pluspop_pct),
+              color ="black",
+              stroke = T,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              weight = 1,
+              highlightOptions = highlightOptions(fillColor = "black",
+                                                  bringToFront = TRUE),
+              label = labels_18plus
+            ) %>%
+            addLegend(
+              position = "topright",
+              pal= mypal,
+              values = data_filtered$booster_doses_18pluspop_pct,
+              title = titles_vaccination,
+              opacity = 1
+            )
+        } 
         
-        #leafletProxy map
-        leafletProxy("map", data = data_filtered )%>%
-          clearControls() %>% # clear the map legend
-          clearShapes() %>% # clear polygons fill color
-          addControl(
-            actionButton("reset_button", "Reset"),
-            position="topleft") %>% # add Reset View button in the map
-          addPolygons(
-            data = data_filtered,
-            fillColor = ~mypal(data_filtered$booster_doses_pop_pct),
-            color ="black",
-            stroke = T,
-            smoothFactor = 0.2,
-            fillOpacity = 0.75,
-            weight = 1,
-            highlightOptions = highlightOptions(fillColor = "black",
-                                                bringToFront = TRUE),
-            label = labels_all_ages
-          ) %>%
-          addLegend(
-            position = "topright",
-            pal= mypal,
-            values = data_filtered$booster_doses_pop_pct,
-            title = "Vaccination Percentage",
-            opacity = 1
-          )
+        else if (input$age == "≥ 65 Years") {
+          # palette
+          mypal <- colorBin("Blues", domain = data_filtered$booster_doses_65pluspop_pct, bins = bins_vaccination)
+          
+          #leafletProxy map
+          leafletProxy("map", data = data_filtered )%>%
+            clearControls() %>% # clear the map legend
+            clearShapes() %>% # clear polygons fill color
+            addControl(
+              actionButton("reset_button", "Reset"),
+              position="topleft") %>% # add Reset View button in the map
+            addPolygons(
+              data = data_filtered,
+              fillColor = ~mypal(data_filtered$booster_doses_65pluspop_pct),
+              color ="black",
+              stroke = T,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              weight = 1,
+              highlightOptions = highlightOptions(fillColor = "black",
+                                                  bringToFront = TRUE),
+              label = labels_65plus
+            ) %>%
+            addLegend(
+              position = "topright",
+              pal= mypal,
+              values = data_filtered$booster_doses_65pluspop_pct,
+              title = titles_vaccination,
+              opacity = 1
+            )
+        }
+        
+        else {
+          
+          # All age groups
+          # palette
+          
+          mypal <- colorBin("Blues", domain = data_filtered$booster_doses_pop_pct, bins = bins_vaccination)
+          
+          #leafletProxy map
+          leafletProxy("map", data = data_filtered )%>%
+            clearControls() %>% # clear the map legend
+            clearShapes() %>% # clear polygons fill color
+            addControl(
+              actionButton("reset_button", "Reset"),
+              position="topleft") %>% # add Reset View button in the map
+            addPolygons(
+              data = data_filtered,
+              fillColor = ~mypal(data_filtered$booster_doses_pop_pct),
+              color ="black",
+              stroke = T,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              weight = 1,
+              highlightOptions = highlightOptions(fillColor = "black",
+                                                  bringToFront = TRUE),
+              label = labels_all_ages
+            ) %>%
+            addLegend(
+              position = "topright",
+              pal= mypal,
+              values = data_filtered$booster_doses_pop_pct,
+              title = titles_vaccination,
+              opacity = 1
+            )
+        }
+        
       }
-      
-      
-    }
+    
+      }
     
     # Hospitalization
     else if (input$data_type == "Hospitalizations per 100k Last 7 Days"){
       
       # palette
-      bins <- c(0, 25, 50, 75, 100)
-      mypal <- colorBin("Reds", domain = data_filtered$conf_covid_admit_100k_last_7, bins = bins)
+      
+      mypal <- colorBin("Reds", domain = data_filtered$conf_covid_admit_100k_last_7, bins = bins_hospitalization)
       
       #leafletProxy map
       leafletProxy("map", data = data_filtered) %>%
