@@ -139,7 +139,9 @@ shinyServer(function(session, input, output) {
     
     # bins
     bins_vaccination <- c(0, 25, 50, 75, 100)
-    bins_hospitalization <- c(0, 25, 50, 75, 100)
+    bins_cases <- round(quantile(unique(us_county_covid$Cases_per_100k_last_7_days), c(0,0.25,0.5,0.75,1)),0)
+    bins_hospitalizations <- round(quantile(unique(us_county_covid$conf_covid_admit_100k_last_7), c(0,0.25,0.5,0.75,1)),0)
+    bins_deaths <- round(quantile(unique(us_county_covid$Deaths_per_100k_last_7_days), c(0,0.25,0.5,0.75,1)),0)
     
     # Vaccination
     
@@ -582,14 +584,49 @@ shinyServer(function(session, input, output) {
         
       }
     
-      }
+    }
     
-    # Hospitalization
+    # Cases 
+    else if(input$data_type == "Cases per 100k Last 7 Days"){
+      
+      # palette
+      
+      mypal <- colorBin("Reds", domain = data_filtered$Cases_per_100k_last_7_days, bins = bins_cases)
+      
+      #leafletProxy map
+      leafletProxy("map", data = data_filtered) %>%
+        clearControls() %>%
+        clearShapes() %>%
+        addControl(
+          actionButton("reset_button", "Reset"),
+          position="topleft") %>%
+        addPolygons(
+          data = data_filtered,
+          fillColor = ~mypal(data_filtered$Cases_per_100k_last_7_days),
+          color ="black",
+          stroke = T,
+          smoothFactor = 0.2,
+          fillOpacity = 0.75,
+          weight = 1,
+          highlightOptions = highlightOptions(fillColor = "black",
+                                              bringToFront = TRUE),
+          label = labels_cases
+        ) %>%
+        addLegend(
+          position = "topright",
+          pal= mypal,
+          values = data_filtered$Cases_per_100k_last_7_days,
+          title = titles_cases,
+          opacity = 1
+        )
+    }
+    
+    # Hospitalization 
     else if (input$data_type == "Hospitalizations per 100k Last 7 Days"){
       
       # palette
       
-      mypal <- colorBin("Reds", domain = data_filtered$conf_covid_admit_100k_last_7, bins = bins_hospitalization)
+      mypal <- colorBin("Reds", domain = data_filtered$conf_covid_admit_100k_last_7, bins = bins_hospitalizations)
       
       #leafletProxy map
       leafletProxy("map", data = data_filtered) %>%
@@ -614,29 +651,85 @@ shinyServer(function(session, input, output) {
           position = "topright",
           pal= mypal,
           values = data_filtered$conf_covid_admit_100k_last_7,
-          title = "Hospitalizations per 100k Last 7 Days",
+          title = titles_hospitalizations,
           opacity = 1
         )
     }
     
-    # # Cases per 100k Last 7 Days
-    # else if(){
-    #   
-    # }
-    # 
-    # # Deaths per 100k Last 7 Days
-    # else if(){
-    #   
-    # }
+    # Deaths
+    else if(input$data_type == "Deaths per 100k Last 7 Days"){
+
+      # palette
+      
+      mypal <- colorBin("Reds", domain = data_filtered$Deaths_per_100k_last_7_days, bins = bins_deaths)
+      
+      #leafletProxy map
+      leafletProxy("map", data = data_filtered) %>%
+        clearControls() %>%
+        clearShapes() %>%
+        addControl(
+          actionButton("reset_button", "Reset"),
+          position="topleft") %>%
+        addPolygons(
+          data = data_filtered,
+          fillColor = ~mypal(data_filtered$Deaths_per_100k_last_7_days),
+          color ="black",
+          stroke = T,
+          smoothFactor = 0.2,
+          fillOpacity = 0.75,
+          weight = 1,
+          highlightOptions = highlightOptions(fillColor = "black",
+                                              bringToFront = TRUE),
+          label = labels_deaths
+        ) %>%
+        addLegend(
+          position = "topright",
+          pal= mypal,
+          values = data_filtered$Deaths_per_100k_last_7_days,
+          title = titles_deaths,
+          opacity = 1
+        )
+    }
     # 
     # # Vaccine Hesitancy
     # else if(){
     #   
     # }
     # 
+    
     # # CDC SVI
     # else{
+    # 
+    #   # palette
     #   
+    #   mypal <- colorBin("Reds", domain = data_filtered$Deaths_per_100k_last_7_days, bins = bins_deaths)
+    #   
+    #   #leafletProxy map
+    #   leafletProxy("map", data = data_filtered) %>%
+    #     clearControls() %>%
+    #     clearShapes() %>%
+    #     addControl(
+    #       actionButton("reset_button", "Reset"),
+    #       position="topleft") %>%
+    #     addPolygons(
+    #       data = data_filtered,
+    #       fillColor = ~mypal(data_filtered$Deaths_per_100k_last_7_days),
+    #       color ="black",
+    #       stroke = T,
+    #       smoothFactor = 0.2,
+    #       fillOpacity = 0.75,
+    #       weight = 1,
+    #       highlightOptions = highlightOptions(fillColor = "black",
+    #                                           bringToFront = TRUE),
+    #       label = labels_deaths
+    #     ) %>%
+    #     addLegend(
+    #       position = "topright",
+    #       pal= mypal,
+    #       values = data_filtered$Deaths_per_100k_last_7_days,
+    #       title = titles_deaths,
+    #       opacity = 1
+    #     )
     # }
     
     
