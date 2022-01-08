@@ -51,7 +51,7 @@ shinyServer(function(session, input, output) {
       "Fully vaccinated:", data_filtered$series_complete_pop_pct,"%<br/>",
       "Booster dose:", data_filtered$booster_doses_pop_pct,"%<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
-      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+      "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
     ) %>% lapply(htmltools::HTML)
     
     labels_5plus <- paste(
@@ -60,7 +60,7 @@ shinyServer(function(session, input, output) {
       "Fully vaccinated:", data_filtered$series_complete_5pluspop_pct,"%<br/>",
       "Booster dose:", data_filtered$booster_doses_pop_pct,"%<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
-      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+      "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
     ) %>% lapply(htmltools::HTML)
     
     labels_12plus <- paste(
@@ -69,7 +69,7 @@ shinyServer(function(session, input, output) {
       "Fully vaccinated:", data_filtered$series_complete_12pluspop,"%<br/>",
       "Booster dose:", data_filtered$booster_doses_pop_pct,"%<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
-      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+      "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
     ) %>% lapply(htmltools::HTML)
     
     labels_18plus <- paste(
@@ -78,7 +78,7 @@ shinyServer(function(session, input, output) {
       "Fully vaccinated:", data_filtered$series_complete_18pluspop,"%<br/>",
       "Booster dose:", data_filtered$booster_doses_18pluspop_pct,"%<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
-      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+      "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
     ) %>% lapply(htmltools::HTML)
     
     labels_65plus <- paste(
@@ -87,7 +87,7 @@ shinyServer(function(session, input, output) {
       "Fully vaccinated:", data_filtered$series_complete_65pluspop,"%<br/>",
       "Booster dose:", data_filtered$booster_doses_65pluspop_pct,"%<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
-      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+      "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
     ) %>% lapply(htmltools::HTML)
     
     # labels of cases
@@ -95,7 +95,15 @@ shinyServer(function(session, input, output) {
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
       "Cases per 100k Last 7 Days:", data_filtered$Cases_per_100k_last_7_days,"<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
-      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+      "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
+    ) %>% lapply(htmltools::HTML)
+    
+    # labels of test positivity
+    labels_tests <- paste(
+      "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Test Positivity Rate Last 7 Days:", data_filtered$test_positivity_rate_last_7_d,"<br/>",
+      "Metro status: ", data_filtered$metro_status,"<br/>",
+      "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
     ) %>% lapply(htmltools::HTML)
     
     # labels of hospitalization
@@ -103,7 +111,7 @@ shinyServer(function(session, input, output) {
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
       "Hospitalizations per 100k Last 7 Days:", data_filtered$conf_covid_admit_100k_last_7,"<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
-      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+      "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
     ) %>% lapply(htmltools::HTML)
     
     # labels of deaths
@@ -111,42 +119,56 @@ shinyServer(function(session, input, output) {
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
       "Deaths per 100k Last 7 Days:", data_filtered$Deaths_per_100k_last_7_days,"<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
-      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+      "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
     ) %>% lapply(htmltools::HTML)
     
-    # # labels of vaccine hesitancy
-    # labels_hesitancy <- paste(
-    #   "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
-    #   "Vaccine Hesitancy:", data_filtered$Deaths_per_100k_last_7_days,"<br/>",
-    #   "Metro status: ", data_filtered$metro_status,"<br/>",
-    #   "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
-    # ) %>% lapply(htmltools::HTML)
+    # labels of vaccine hesitancy
+    labels_hesitancy <- paste(
+      "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "COVID-19 Vaccine Hesitancy Percentage:", data_filtered$estimated_hesitant,"<br/>",
+      "Metro status: ", data_filtered$metro_status,"<br/>",
+      "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
+    ) %>% lapply(htmltools::HTML)
     
     # labels of SVI
     labels_svi <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
-      "Social Vulnerability Index: ", data_filtered$svi_num,"<br/>"
+      "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
+    ) %>% lapply(htmltools::HTML)
+    
+    # labels of COVID-19 Vaccine Coverage Index
+    labels_cvac <- paste(
+      "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "COVID-19 Vaccine Coverage Index: ", data_filtered$ability_to_handle_a_covid,"<br/>",
+      "Metro status: ", data_filtered$metro_status,"<br/>",
+      "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
     ) %>% lapply(htmltools::HTML)
     
     # Legend titles
-    titles_vaccination <- "Vaccination Percentage"
     titles_cases<- "Cases per 100k Last 7 Days"
+    titles_tests <- "Test Positivity Rate Last 7 Days"
     titles_hospitalizations <- "Hospitalizations per 100k Last 7 Days"
     titles_deaths <- "Deaths per 100k Last 7 Days"
-    titles_hesitancy <- "Vaccine Hesitancy"
-    titles_svi <- "Social Vulnerability Index"
+    titles_vaccination <- "Vaccination Percentage"
+    titles_hesitancy <- "COVID-19 Vaccine Hesitancy Percentage"
+    titles_svi <- "CDC Social Vulnerability Index"
+    titles_cvac <- "COVID-19 Vaccine Coverage Index"
     
     # bins
+    bins_cases <- round(quantile(unique(us_county_covid$Cases_per_100k_last_7_days), c(0,0.25,0.5,0.75,1), na.rm = T),0)
+    bins_tests <- c(0, 25, 50, 75, 100)
+    bins_hospitalizations <- round(quantile(unique(us_county_covid$conf_covid_admit_100k_last_7), c(0,0.25,0.5,0.75,1), na.rm = T),0)
+    bins_deaths <- round(quantile(unique(us_county_covid$Deaths_per_100k_last_7_days), c(0,0.25,0.5,0.75,1), na.rm = T),0)
     bins_vaccination <- c(0, 25, 50, 75, 100)
-    bins_cases <- round(quantile(unique(us_county_covid$Cases_per_100k_last_7_days), c(0,0.25,0.5,0.75,1)),0)
-    bins_hospitalizations <- round(quantile(unique(us_county_covid$conf_covid_admit_100k_last_7), c(0,0.25,0.5,0.75,1)),0)
-    bins_deaths <- round(quantile(unique(us_county_covid$Deaths_per_100k_last_7_days), c(0,0.25,0.5,0.75,1)),0)
-    bins_svi <- c(0, 0.26, 0.51, 0.76, 1)
+    bins_hesitancy <- round(quantile(unique(us_county_covid$estimated_hesitant), c(0,0.25,0.5,0.75,1), na.rm = T),0)
+    bins_svi <- c(0, 0.25, 0.5, 0.75, 1)
+    bins_cvac <- c(0, 0.25, 0.5, 0.75, 1)
+    
+    # data types
     
     # Vaccination
-    
-    if ( input$data_type == "Vaccination"){
+    if ( input$data_type == "Vaccination Percentage"){
       
       # At least one dose
       if (input$vaccination_status == 'At Lease One Dose'){
@@ -584,7 +606,7 @@ shinyServer(function(session, input, output) {
         }
         
       }
-    
+      
     }
     
     # Cases 
@@ -592,7 +614,7 @@ shinyServer(function(session, input, output) {
       
       # palette
       
-      mypal <- colorBin("Reds", domain = data_filtered$Cases_per_100k_last_7_days, bins = bins_cases)
+      mypal <- colorBin("YlOrRd", domain = data_filtered$Cases_per_100k_last_7_days, bins = bins_cases)
       
       #leafletProxy map
       leafletProxy("map", data = data_filtered) %>%
@@ -622,12 +644,47 @@ shinyServer(function(session, input, output) {
         )
     }
     
+    # Tests
+    else if (input$data_type == "Test Positivity Rate Last 7 Days"){
+      
+      # palette
+      
+      mypal <- colorBin("YlOrRd", domain = data_filtered$test_positivity_rate_last_7_d, bins = bins_tests)
+      
+      #leafletProxy map
+      leafletProxy("map", data = data_filtered) %>%
+        clearControls() %>%
+        clearShapes() %>%
+        addControl(
+          actionButton("reset_button", "Reset"),
+          position="topleft") %>%
+        addPolygons(
+          data = data_filtered,
+          fillColor = ~mypal(data_filtered$test_positivity_rate_last_7_d),
+          color ="black",
+          stroke = T,
+          smoothFactor = 0.2,
+          fillOpacity = 0.75,
+          weight = 1,
+          highlightOptions = highlightOptions(fillColor = "black",
+                                              bringToFront = TRUE),
+          label = labels_tests
+        ) %>%
+        addLegend(
+          position = "topright",
+          pal= mypal,
+          values = data_filtered$test_positivity_rate_last_7_d,
+          title = titles_tests,
+          opacity = 1
+        )
+    }
+    
     # Hospitalization 
     else if (input$data_type == "Hospitalizations per 100k Last 7 Days"){
       
       # palette
       
-      mypal <- colorBin("Reds", domain = data_filtered$conf_covid_admit_100k_last_7, bins = bins_hospitalizations)
+      mypal <- colorBin("YlOrRd", domain = data_filtered$conf_covid_admit_100k_last_7, bins = bins_hospitalizations)
       
       #leafletProxy map
       leafletProxy("map", data = data_filtered) %>%
@@ -659,10 +716,10 @@ shinyServer(function(session, input, output) {
     
     # Deaths
     else if(input$data_type == "Deaths per 100k Last 7 Days"){
-
+      
       # palette
       
-      mypal <- colorBin("Reds", domain = data_filtered$Deaths_per_100k_last_7_days, bins = bins_deaths)
+      mypal <- colorBin("YlOrRd", domain = data_filtered$Deaths_per_100k_last_7_days, bins = bins_deaths)
       
       #leafletProxy map
       leafletProxy("map", data = data_filtered) %>%
@@ -691,20 +748,13 @@ shinyServer(function(session, input, output) {
           opacity = 1
         )
     }
-    # 
-    # # Vaccine Hesitancy
-    # else if(){
-    #   
-    # }
-    # 
     
-    # CDC SVI
-    else{
-
+    # Vaccine Hesitancy
+    else if(input$data_type == "Vaccination Hesitancy"){
       # palette
-
-      mypal <- colorBin("Purples", domain = data_filtered$svi_num, bins = bins_svi)
-
+      
+      mypal <- colorBin("Reds", domain = data_filtered$estimated_hesitant, bins = bins_hesitancy)
+      
       #leafletProxy map
       leafletProxy("map", data = data_filtered) %>%
         clearControls() %>%
@@ -714,7 +764,44 @@ shinyServer(function(session, input, output) {
           position="topleft") %>%
         addPolygons(
           data = data_filtered,
-          fillColor = ~mypal(data_filtered$svi_num),
+          fillColor = ~mypal(data_filtered$estimated_hesitant),
+          color ="black",
+          stroke = T,
+          smoothFactor = 0.2,
+          fillOpacity = 0.75,
+          weight = 1,
+          highlightOptions = highlightOptions(fillColor = "black",
+                                              bringToFront = TRUE),
+          label = labels_hesitancy
+        ) %>%
+        addLegend(
+          position = "topright",
+          pal= mypal,
+          values = data_filtered$estimated_hesitant,
+          title = titles_hesitancy,
+          opacity = 1
+        )
+      
+    }
+    
+    
+    # CDC SVI
+    else if (input$data_type == "CDC Social Vulnerability Index") {
+      
+      # palette
+      
+      mypal <- colorBin("Purples", domain = data_filtered$social_vulnerability_index, bins = bins_svi)
+      
+      #leafletProxy map
+      leafletProxy("map", data = data_filtered) %>%
+        clearControls() %>%
+        clearShapes() %>%
+        addControl(
+          actionButton("reset_button", "Reset"),
+          position="topleft") %>%
+        addPolygons(
+          data = data_filtered,
+          fillColor = ~mypal(data_filtered$social_vulnerability_index),
           color ="black",
           stroke = T,
           smoothFactor = 0.2,
@@ -727,8 +814,43 @@ shinyServer(function(session, input, output) {
         addLegend(
           position = "topright",
           pal= mypal,
-          values = data_filtered$svi_num,
+          values = data_filtered$social_vulnerability_index,
           title = titles_svi,
+          opacity = 1
+        )
+    }
+    
+    # COVID-19 Vaccine Coverage Index
+    else {
+      
+      # palette
+      
+      mypal <- colorBin("Oranges", domain = data_filtered$ability_to_handle_a_covid, bins = bins_cvac)
+      
+      #leafletProxy map
+      leafletProxy("map", data = data_filtered) %>%
+        clearControls() %>%
+        clearShapes() %>%
+        addControl(
+          actionButton("reset_button", "Reset"),
+          position="topleft") %>%
+        addPolygons(
+          data = data_filtered,
+          fillColor = ~mypal(data_filtered$ability_to_handle_a_covid),
+          color ="black",
+          stroke = T,
+          smoothFactor = 0.2,
+          fillOpacity = 0.75,
+          weight = 1,
+          highlightOptions = highlightOptions(fillColor = "black",
+                                              bringToFront = TRUE),
+          label = labels_cvac
+        ) %>%
+        addLegend(
+          position = "topright",
+          pal= mypal,
+          values = data_filtered$ability_to_handle_a_covid,
+          title = titles_cvac,
           opacity = 1
         )
     }
