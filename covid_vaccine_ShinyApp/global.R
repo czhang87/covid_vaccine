@@ -1,4 +1,4 @@
-# COVID vaccination
+# COVID in the U.S.
 
 library(shiny)
 library(shinydashboard)
@@ -10,6 +10,7 @@ library(leaflet)
 library(htmltools)
 library(rmapshaper)
 library(stringr)
+library(plotly)
 
 
 # vaccination data from CDC
@@ -18,7 +19,8 @@ response <- GET(url)
 covid_vaccination <- content(response,as = "parsed")
 
 # Geospatial data with demographic info
-us_county <- read_sf("../data/USA_Counties/USA_Counties.shp")
+us_county <- read_sf("data/USA_Counties/USA_Counties.shp")
+
 
 # COVID testing, case, hospitalization, ICU, ventilator, and death data
 url1 <- "https://services5.arcgis.com/qWZ7BaZXaP5isnfT/arcgis/rest/services/Community_Profile_Report_Counties/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=false&outSR=4326&f=json"

@@ -1,4 +1,4 @@
-# COVID vaccination
+# COVID in the U.S.
 
 # Define server logic required to draw a histogram
 shinyServer(function(session, input, output) {
@@ -9,6 +9,7 @@ shinyServer(function(session, input, output) {
   #                     choices = us_county_covid[us_county_covid$STATE_NAME == input$state,]$NAME)
   # })
   
+  # MAP TAB
   
   # Initial view
   initial_lat = 39.8283
@@ -176,7 +177,7 @@ shinyServer(function(session, input, output) {
         if (input$age == "All Age Groups"){
           
           # palette
-          mypal <- colorBin("Blues", domain = data_filtered$administered_dose1_pop_pct, bins = bins_vaccination)
+          mypal <- colorBin("YlGnBu", domain = data_filtered$administered_dose1_pop_pct, bins = bins_vaccination)
           
           #leafletProxy map
           leafletProxy("map", data = data_filtered )%>%
@@ -208,7 +209,7 @@ shinyServer(function(session, input, output) {
         
         else if (input$age == "≥ 5 Years"){
           # palette
-          mypal <- colorBin("Blues", domain = data_filtered$administered_dose1_recip_5pluspop_pct, bins = bins_vaccination)
+          mypal <- colorBin("YlGnBu", domain = data_filtered$administered_dose1_recip_5pluspop_pct, bins = bins_vaccination)
           
           #leafletProxy map
           leafletProxy("map", data = data_filtered )%>%
@@ -241,7 +242,7 @@ shinyServer(function(session, input, output) {
         else if (input$age == "≥ 12 Years"){
           
           # palette
-          mypal <- colorBin("Blues", domain = data_filtered$administered_dose1_recip_12pluspop_pct, bins = bins_vaccination)
+          mypal <- colorBin("YlGnBu", domain = data_filtered$administered_dose1_recip_12pluspop_pct, bins = bins_vaccination)
           
           #leafletProxy map
           leafletProxy("map", data = data_filtered )%>%
@@ -273,7 +274,7 @@ shinyServer(function(session, input, output) {
         
         else if(input$age == "≥ 18 Years"){
           # palette
-          mypal <- colorBin("Blues", domain = data_filtered$administered_dose1_recip_18pluspop_pct, bins = bins_vaccination)
+          mypal <- colorBin("YlGnBu", domain = data_filtered$administered_dose1_recip_18pluspop_pct, bins = bins_vaccination)
           
           #leafletProxy map
           leafletProxy("map", data = data_filtered )%>%
@@ -305,7 +306,7 @@ shinyServer(function(session, input, output) {
         
         else {
           # palette
-          mypal <- colorBin("Blues", domain = data_filtered$administered_dose1_recip_65pluspop_pct, bins = bins_vaccination)
+          mypal <- colorBin("YlGnBu", domain = data_filtered$administered_dose1_recip_65pluspop_pct, bins = bins_vaccination)
           
           #leafletProxy map
           leafletProxy("map", data = data_filtered )%>%
@@ -343,7 +344,7 @@ shinyServer(function(session, input, output) {
           
           # palette
           
-          mypal <- colorBin("Blues", domain = data_filtered$series_complete_pop_pct, bins = bins_vaccination)
+          mypal <- colorBin("YlGnBu", domain = data_filtered$series_complete_pop_pct, bins = bins_vaccination)
           
           #leafletProxy map
           leafletProxy("map", data = data_filtered )%>%
@@ -375,7 +376,7 @@ shinyServer(function(session, input, output) {
         
         else if (input$age == "≥ 5 Years"){
           # palette
-          mypal <- colorBin("Blues", domain = data_filtered$series_complete_5pluspop_pct, bins = bins_vaccination)
+          mypal <- colorBin("YlGnBu", domain = data_filtered$series_complete_5pluspop_pct, bins = bins_vaccination)
           
           #leafletProxy map
           leafletProxy("map", data = data_filtered )%>%
@@ -408,7 +409,7 @@ shinyServer(function(session, input, output) {
         else if (input$age == "≥ 12 Years"){
           
           # palette
-          mypal <- colorBin("Blues", domain = data_filtered$series_complete_12pluspop, bins = bins_vaccination)
+          mypal <- colorBin("YlGnBu", domain = data_filtered$series_complete_12pluspop, bins = bins_vaccination)
           
           #leafletProxy map
           leafletProxy("map", data = data_filtered )%>%
@@ -440,7 +441,7 @@ shinyServer(function(session, input, output) {
         
         else if(input$age == "≥ 18 Years"){
           # palette
-          mypal <- colorBin("Blues", domain = data_filtered$series_complete_18pluspop, bins = bins_vaccination)
+          mypal <- colorBin("YlGnBu", domain = data_filtered$series_complete_18pluspop, bins = bins_vaccination)
           
           #leafletProxy map
           leafletProxy("map", data = data_filtered )%>%
@@ -472,7 +473,7 @@ shinyServer(function(session, input, output) {
         
         else {
           # palette
-          mypal <- colorBin("Blues", domain = data_filtered$series_complete_65pluspop, bins = bins_vaccination)
+          mypal <- colorBin("YlGnBu", domain = data_filtered$series_complete_65pluspop, bins = bins_vaccination)
           
           #leafletProxy map
           leafletProxy("map", data = data_filtered )%>%
@@ -508,7 +509,7 @@ shinyServer(function(session, input, output) {
         
         if(input$age == "≥ 18 Years"){
           # palette
-          mypal <- colorBin("Blues", domain = data_filtered$booster_doses_18pluspop_pct, bins = bins_vaccination)
+          mypal <- colorBin("YlGnBu", domain = data_filtered$booster_doses_18pluspop_pct, bins = bins_vaccination)
           
           #leafletProxy map
           leafletProxy("map", data = data_filtered )%>%
@@ -540,7 +541,7 @@ shinyServer(function(session, input, output) {
         
         else if (input$age == "≥ 65 Years") {
           # palette
-          mypal <- colorBin("Blues", domain = data_filtered$booster_doses_65pluspop_pct, bins = bins_vaccination)
+          mypal <- colorBin("YlGnBu", domain = data_filtered$booster_doses_65pluspop_pct, bins = bins_vaccination)
           
           #leafletProxy map
           leafletProxy("map", data = data_filtered )%>%
@@ -575,7 +576,7 @@ shinyServer(function(session, input, output) {
           # All age groups
           # palette
           
-          mypal <- colorBin("Blues", domain = data_filtered$booster_doses_pop_pct, bins = bins_vaccination)
+          mypal <- colorBin("YlGnBu", domain = data_filtered$booster_doses_pop_pct, bins = bins_vaccination)
           
           #leafletProxy map
           leafletProxy("map", data = data_filtered )%>%
@@ -855,6 +856,19 @@ shinyServer(function(session, input, output) {
         )
     }
     
+    # ANALYSIS TAB  
+    data_filtered_vaccination <- data_filtered %>% 
+      filter(administered_dose1_pop_pct>0)
+      
+      
+    output$scatter_cases <- renderPlotly({
+      data_filtered_vaccination %>% 
+        ggplot(aes_string(x = input$xvariable, y = "Cases_per_100k_last_7_days", color = "metro_status")) +
+        geom_point(alpha = 0.3)+
+        geom_smooth(method = lm, se=T)
+    })
+    
+    #EXPORT TAB
     
     
   })
