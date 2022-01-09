@@ -857,22 +857,43 @@ shinyServer(function(session, input, output) {
     }
     
     # ANALYSIS TAB  
+    
+    # Scatter plot
     data_filtered_vaccination <- data_filtered %>% 
       filter(administered_dose1_pop_pct>0)
       
+    my.formula <- y ~ x
+    
+    output$scatter <- renderPlot({
+      p <- data_filtered_vaccination %>% 
+        ggplot(aes_string(x = input$xvariable, y = input$yvariable, color = "metro_status")) +
+        geom_point(alpha = 0.5)+
+        geom_smooth(method = lm, formula = my.formula)+
+        stat_poly_eq(formula = my.formula, 
+                     aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), 
+                     parse = TRUE) +
+        theme_bw()+
+        theme(legend.position="bottom")
       
-    output$scatter_cases <- renderPlotly({
-      data_filtered_vaccination %>% 
-        ggplot(aes_string(x = input$xvariable, y = "Cases_per_100k_last_7_days", color = "metro_status")) +
-        geom_point(alpha = 0.3)+
-        geom_smooth(method = lm, se=T)
+      
+      ggMarginal(p, type= "histogram", fill = "blue")
+    })
+    
+    output$correlation <- renderText({
+
+      correlation <- cor(data_filtered_vaccination[[input$yvariable]], data_filtered_vaccination[[input$xvariable]], use="complete.obs") %>% round(3)
+      
+
+      paste0("<b>Correlation between ", 
+             switch(input$yvariable,"Cases_per_100k_last_7_days"="Cases per 100k Last 7 Days"), 
+             " and ", 
+             switch(input$xvariable,"administered_dose1_pop_pct"= "At Least One Dose in All Age Groups"), 
+             ":</b> ", 
+             correlation)
     })
     
     #EXPORT TAB
     
     
   })
-  
-  
-  
 })

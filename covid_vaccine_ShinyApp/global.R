@@ -11,6 +11,8 @@ library(htmltools)
 library(rmapshaper)
 library(stringr)
 library(plotly)
+library(ggExtra)
+library(ggpmisc)
 
 
 # vaccination data from CDC
