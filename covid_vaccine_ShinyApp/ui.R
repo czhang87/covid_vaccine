@@ -73,9 +73,16 @@ shinyUI(
           selectInput(
             inputId = "xvariable",
             label = "Select a Variable For The X-axis",
-            choices = c("At Least One Dose in All Age Groups"="administered_dose1_pop_pct",
+            choices = c("Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days",
+                        "Test Positivity Rate Last 7 Days" = "test_positivity_rate_last_7_d",
+                        "Hospitalizations per 100k Last 7 Days" = "conf_covid_admit_100k_last_7",
+                        "Deaths per 100k Last 7 Days" = "Deaths_per_100k_last_7_days",
+                        "At Least One Dose in All Age Groups"="administered_dose1_pop_pct",
                         "Fully Vaccinated in All Age Groups" = "series_complete_pop_pct",
-                        "Booster (or Additional) Dose in All Age Groups" = "booster_doses_pop_pct"
+                        "Booster (or Additional) Dose in All Age Groups" = "booster_doses_pop_pct",
+                        "COVID-19 Vaccine Hesitancy Percentage" = "estimated_hesitant",
+                        "CDC Social Vulnerability Index" = "social_vulnerability_index",
+                        "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid"
             )
           ),
           selectInput(
@@ -85,6 +92,9 @@ shinyUI(
                         "Test Positivity Rate Last 7 Days" = "test_positivity_rate_last_7_d",
                         "Hospitalizations per 100k Last 7 Days" = "conf_covid_admit_100k_last_7",
                         "Deaths per 100k Last 7 Days" = "Deaths_per_100k_last_7_days",
+                        "At Least One Dose in All Age Groups"="administered_dose1_pop_pct",
+                        "Fully Vaccinated in All Age Groups" = "series_complete_pop_pct",
+                        "Booster (or Additional) Dose in All Age Groups" = "booster_doses_pop_pct",
                         "COVID-19 Vaccine Hesitancy Percentage" = "estimated_hesitant",
                         "CDC Social Vulnerability Index" = "social_vulnerability_index",
                         "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid"
@@ -144,18 +154,15 @@ shinyUI(
         ),
         
         # Analysis tab
+        
         tabItem(
           tabName = "analysis",
           h1("Analysis of Current COVID-19 Data in The U.S. by County"),
           fluidRow(
             column(
               width = 12,
-              fluidRow(
-                style = "display:flex; justify-content: center; align-items: center; height: 50px;",
-                htmlOutput("correlation")
-              ),
               box(
-                title = "Scatter Plot", width = NULL, status = "primary",
+                title = uiOutput("scatter_title"), width = NULL, status = "primary",solidHeader = T,
                 plotOutput("scatter")
               )
               
@@ -168,15 +175,18 @@ shinyUI(
           ),
           fluidRow(
             column(
-              width = 6, 
+              width = 6,
               box(
-                title = "Scatter Plot", width = NULL, status = "primary",
+                title = uiOutput("yboxplot_title"), width = NULL, status = "primary",solidHeader = T,
+                plotlyOutput("yboxplot")
               )
             ),
             column(
               width = 6,
               box(
-                title = "Scatter Plot", width = NULL, status = "primary",)
+                title = uiOutput("xboxplot_title"), width = NULL, status = "primary",solidHeader = T,
+                plotlyOutput("xboxplot")
+              )
             )
           )
         ),

@@ -857,7 +857,31 @@ shinyServer(function(session, input, output) {
         )
     }
     
-    # ANALYSIS TAB  
+    # ANALYSIS TAB
+    
+    # reactive labels for boxes
+    output$scatter_title <- renderPrint({
+      
+      correlation <- cor(data_filtered[[input$yvariable]], 
+                         data_filtered[[input$xvariable]], 
+                         use="complete.obs") %>% round(3)
+      
+      HTML(paste0("<b>Correlation between ", 
+                  names(switch_labels[which(switch_labels == input$yvariable)]), 
+                  " and ", 
+                  names(switch_labels[which(switch_labels == input$xvariable)]), 
+                  ": ", 
+                  correlation,
+                  "</b> "))
+    })
+    
+    output$yboxplot_title <- renderPrint({
+      HTML(paste0("<b>", names(switch_labels[which(switch_labels == input$yvariable)]),"<b>"))
+    })
+    
+    output$xboxplot_title <- renderPrint({
+      HTML(paste0("<b>", names(switch_labels[which(switch_labels == input$xvariable)]),"<b>"))
+    })
     
     # Scatter plot
     data_filtered <- data_filtered %>% 
@@ -882,31 +906,39 @@ shinyServer(function(session, input, output) {
       
       
       # p<- ggMarginal(p, type= "histogram", fill = "blue") # add marginal histogram
-      p+ facet_grid(reformulate(input$hue))
+      p+ facet_grid(reformulate(input$hue))+
+        labs(x=names(switch_labels[which(switch_labels == input$xvariable)]), 
+             y=names(switch_labels[which(switch_labels == input$yvariable)]),
+             col=names(hue_labels[which(hue_labels == input$hue)])
+        )
     })
     
-    output$correlation <- renderText({
-
-      correlation <- cor(data_filtered[[input$yvariable]], 
-                         data_filtered[[input$xvariable]], 
-                         use="complete.obs") %>% round(3)
-      paste0("<b>Correlation between ", 
-             switch(input$yvariable,"Cases_per_100k_last_7_days"="Cases per 100k Last 7 Days"), 
-             " and ", 
-             switch(input$xvariable,"administered_dose1_pop_pct"= "At Least One Dose in All Age Groups"), 
-             ":</b> ", 
-             correlation)
-    })
     
     # boxplot of y axis
     
-    
-    
-    
+    output$yboxplot <-renderPlotly({
+      data_filtered %>% 
+        ggplot(aes_string(x=input$hue,y=input$yvariable, fill = input$hue))+
+        geom_boxplot()+
+        theme_bw()+
+        theme(legend.position  = "none")+ # remove figure legend
+        labs(x=names(hue_labels[which(hue_labels == input$hue)]),
+             y=names(switch_labels[which(switch_labels == input$yvariable)]))+ 
+        coord_flip() # flip to horizontal boxplot
+    })
     
     #boxplot of x axis
     
-    
+    output$xboxplot <-renderPlotly({
+      data_filtered %>% 
+        ggplot(aes_string(x=input$hue,y=input$xvariable, fill = input$hue))+
+        geom_boxplot()+
+        theme_bw()+
+        theme(legend.position  = "none")+ # remove figure legend
+        labs(x=names(hue_labels[which(hue_labels == input$hue)]),
+             y=names(switch_labels[which(switch_labels == input$xvariable)]))+ 
+        coord_flip() # flip to horizontal boxplot
+    })
     
     
     

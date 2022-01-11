@@ -80,27 +80,37 @@ us_county_covid <- us_county_covid %>%
   ) %>%
   filter(!STATE_NAME %in% c("Puerto Rico", "District of Columbia", "Alaska", "Hawaii"))
 
-# replace_na(list(administered_dose1_pop_pct= 0,
-#                 series_complete_pop_pct = 0,
-#                 booster_doses_pop_pct =0,
-#                 administered_dose1_recip_5pluspop_pct =0,
-#                 series_complete_5pluspop_pct=0,
-#                 administered_dose1_recip_12pluspop_pct=0,
-#                 series_complete_12pluspop=0,
-#                 administered_dose1_recip_18pluspop_pct=0,
-#                 series_complete_18pluspop = 0,
-#                 booster_doses_18pluspop_pct = 0,
-#                 administered_dose1_recip_65pluspop_pct=0,
-#                 series_complete_65pluspop=0,
-#                 booster_doses_65pluspop_pct=0,
-#                 social_vulnerability_index = 0,
-#                 estimated_hesitant = 0,
-#                 test_positivity_rate_last_7_d=0,
-#                 ability_to_handle_a_covid=0)
-# )
+switch_labels <- c("Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days",
+                   "Test Positivity Rate Last 7 Days" = "test_positivity_rate_last_7_d",
+                   "Hospitalizations per 100k Last 7 Days" = "conf_covid_admit_100k_last_7",
+                   "Deaths per 100k Last 7 Days" = "Deaths_per_100k_last_7_days",
+                   "At Least One Dose in All Age Groups"="administered_dose1_pop_pct",
+                   "Fully Vaccinated in All Age Groups" = "series_complete_pop_pct",
+                   "Booster (or Additional) Dose in All Age Groups" = "booster_doses_pop_pct",
+                   "COVID-19 Vaccine Hesitancy Percentage" = "estimated_hesitant",
+                   "CDC Social Vulnerability Index" = "social_vulnerability_index",
+                   "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid"
+)
+hue_labels<- c(
+  "Metropolitan Status"="metro_status",
+  "CDC Social Vulnerability Index" = "svi_category",
+  "COVID-19 Vaccine Coverage Index" = "cvac_category"
+)
+
+# switch plot labels
+# switch_labels <- c("Cases_per_100k_last_7_days"="Cases per 100k Last 7 Days",
+#                       "test_positivity_rate_last_7_d"="Test Positivity Rate Last 7 Days",
+#                       "conf_covid_admit_100k_last_7"="Hospitalizations per 100k Last 7 Days",
+#                       "Deaths_per_100k_last_7_days"="Deaths per 100k Last 7 Days",
+#                       "administered_dose1_pop_pct"="At Least One Dose in All Age Groups",
+#                       "series_complete_pop_pct"="Fully Vaccinated in All Age Groups",
+#                       "booster_doses_pop_pct"="Booster (or Additional) Dose in All Age Groups",
+#                       "estimated_hesitant"="COVID-19 Vaccine Hesitancy Percentage",
+#                       "social_vulnerability_index"="CDC Social Vulnerability Index",
+#                       "ability_to_handle_a_covid"="COVID-19 Vaccine Coverage Index")
 
 # simplify polygons
-us_county_covid <- rmapshaper::ms_simplify(us_county_covid, keep = 0.05, keep_shapes = TRUE)
+# us_county_covid <- rmapshaper::ms_simplify(us_county_covid, keep = 0.05, keep_shapes = TRUE)
 
 # us_county_covid %>% 
 #   write_rds("data/us_county_covid.RDS")
