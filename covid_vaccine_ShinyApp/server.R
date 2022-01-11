@@ -20,6 +20,7 @@ shinyServer(function(session, input, output) {
   output$map <- renderLeaflet({
     leaflet() %>%
       addProviderTiles("OpenStreetMap.Mapnik")%>%
+      # addTiles() %>% 
       setView(lat = initial_lat, lng = initial_lng, zoom = initial_zoom)
   })
   
@@ -859,31 +860,36 @@ shinyServer(function(session, input, output) {
     # ANALYSIS TAB  
     
     # Scatter plot
-    data_filtered_vaccination <- data_filtered %>% 
-      filter(administered_dose1_pop_pct>0)
+    data_filtered <- data_filtered %>% 
+      filter(administered_dose1_pop_pct>0,
+             series_complete_pop_pct>0,
+             booster_doses_pop_pct>0,
+             !(is.na(svi_category))
+      )
       
     my.formula <- y ~ x
     
     output$scatter <- renderPlot({
-      p <- data_filtered_vaccination %>% 
-        ggplot(aes_string(x = input$xvariable, y = input$yvariable, color = "metro_status")) +
+      p <- data_filtered %>% 
+        ggplot(aes_string(x = input$xvariable, y = input$yvariable, color = input$hue)) +
         geom_point(alpha = 0.5)+
         geom_smooth(method = lm, formula = my.formula)+
         stat_poly_eq(formula = my.formula, 
                      aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), 
-                     parse = TRUE) +
-        theme_bw()+
-        theme(legend.position="bottom")
+                     parse = TRUE) + # add formula and R^2 to the plot
+        theme_bw()+ # remove the background
+        theme(legend.position="bottom") # move the figure legend to the bottom
       
       
-      ggMarginal(p, type= "histogram", fill = "blue")
+      # p<- ggMarginal(p, type= "histogram", fill = "blue") # add marginal histogram
+      p+ facet_grid(reformulate(input$hue))
     })
     
     output$correlation <- renderText({
 
-      correlation <- cor(data_filtered_vaccination[[input$yvariable]], data_filtered_vaccination[[input$xvariable]], use="complete.obs") %>% round(3)
-      
-
+      correlation <- cor(data_filtered[[input$yvariable]], 
+                         data_filtered[[input$xvariable]], 
+                         use="complete.obs") %>% round(3)
       paste0("<b>Correlation between ", 
              switch(input$yvariable,"Cases_per_100k_last_7_days"="Cases per 100k Last 7 Days"), 
              " and ", 
@@ -891,6 +897,18 @@ shinyServer(function(session, input, output) {
              ":</b> ", 
              correlation)
     })
+    
+    # boxplot of y axis
+    
+    
+    
+    
+    
+    #boxplot of x axis
+    
+    
+    
+    
     
     #EXPORT TAB
     

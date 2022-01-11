@@ -89,6 +89,14 @@ shinyUI(
                         "CDC Social Vulnerability Index" = "social_vulnerability_index",
                         "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid"
             )
+          ),
+          selectInput(
+            inputId = "hue",
+            label = "Select a Comparison Category",
+            choices = c("Metropolitan Status"="metro_status",
+                        "CDC Social Vulnerability Index" = "svi_category",
+                        "COVID-19 Vaccine Coverage Index" = "cvac_category"
+            )
           )
         ),
         
@@ -141,19 +149,34 @@ shinyUI(
           h1("Analysis of Current COVID-19 Data in The U.S. by County"),
           fluidRow(
             column(
-              width = 6,
+              width = 12,
+              fluidRow(
+                style = "display:flex; justify-content: center; align-items: center; height: 50px;",
+                htmlOutput("correlation")
+              ),
               box(
                 title = "Scatter Plot", width = NULL, status = "primary",
                 plotOutput("scatter")
               )
+              
             )
-            ,
+            # ,
+            # column(
+            #   width = 6
+            # 
+            # )
+          ),
+          fluidRow(
+            column(
+              width = 6, 
+              box(
+                title = "Scatter Plot", width = NULL, status = "primary",
+              )
+            ),
             column(
               width = 6,
-              fluidRow(
-                style = "display:flex; justify-content: center; align-items: center; height: 50px;",
-                htmlOutput("correlation")
-              )
+              box(
+                title = "Scatter Plot", width = NULL, status = "primary",)
             )
           )
         ),

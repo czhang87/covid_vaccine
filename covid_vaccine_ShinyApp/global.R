@@ -13,7 +13,10 @@ library(stringr)
 library(plotly)
 library(ggExtra)
 library(ggpmisc)
+library(ggbeeswarm)
 
+# set working directory
+setwd("~/Documents/Data Science/bootcamp/NSS/DS5/nss_projects/covid_vaccine/covid_vaccine_ShinyApp")
 
 # vaccination data from CDC
 url <- "https://data.cdc.gov/resource/8xkx-amqh.csv?$limit=3282"
@@ -21,7 +24,7 @@ response <- GET(url)
 covid_vaccination <- content(response,as = "parsed")
 
 # Geospatial data with demographic info
-us_county <- read_sf("data/USA_Counties/USA_Counties.shp")
+us_county_covid <- read_sf("data/USA_Counties/USA_Counties.shp")
 
 
 # COVID testing, case, hospitalization, ICU, ventilator, and death data
@@ -46,7 +49,7 @@ covid_vaccine_hesitancy <- covid_vaccine_hesitancy %>%
 
 # merge data frame
 
-us_county_covid <- left_join(us_county, covid_vaccination, by = c("FIPS"="fips"))
+us_county_covid <- left_join(us_county_covid, covid_vaccination, by = c("FIPS"="fips"))
 us_county_covid <- left_join(us_county_covid, case_hospitalization_death, by = c("FIPS"="FIPS_code"))
 us_county_covid <- left_join(us_county_covid, covid_vaccine_hesitancy, by = c("FIPS"="fips_code"))
 
@@ -60,28 +63,51 @@ us_county_covid <- us_county_covid %>%
   mutate(booster_doses_pop_pct = round(booster_doses/(series_complete_yes/series_complete_pop_pct), 1),
          booster_doses_18pluspop_pct = round(booster_doses_18plus/(series_complete_18plus/series_complete_18pluspop), 1),
          booster_doses_65pluspop_pct = round(booster_doses_65plus/(series_complete_65plus/series_complete_65pluspop), 1),
-         estimated_hesitant = round(estimated_hesitant*100,1)
-  ) #%>% 
-  # replace_na(list(administered_dose1_pop_pct= 0,
-  #                 series_complete_pop_pct = 0,
-  #                 booster_doses_pop_pct =0,
-  #                 administered_dose1_recip_5pluspop_pct =0,
-  #                 series_complete_5pluspop_pct=0,
-  #                 administered_dose1_recip_12pluspop_pct=0,
-  #                 series_complete_12pluspop=0,
-  #                 administered_dose1_recip_18pluspop_pct=0,
-  #                 series_complete_18pluspop = 0,
-  #                 booster_doses_18pluspop_pct = 0,
-  #                 administered_dose1_recip_65pluspop_pct=0,
-  #                 series_complete_65pluspop=0,
-  #                 booster_doses_65pluspop_pct=0,
-  #                 social_vulnerability_index = 0,
-  #                 estimated_hesitant = 0,
-  #                 test_positivity_rate_last_7_d=0,
-  #                 ability_to_handle_a_covid=0)
-  # )
+         estimated_hesitant = round(estimated_hesitant*100,1),
+         metro_status = factor(metro_status, levels = c("Metro", 
+                                                        "Non-metro")),
+         svi_category = factor(svi_category, levels = c("Very Low Vulnerability", 
+                                                        "Low Vulnerability",
+                                                        "Moderate Vulnerability", 
+                                                        "High Vulnerability",
+                                                        "Very High Vulnerability")),
+         cvac_category = factor(cvac_category, levels = c("Very Low Concern", 
+                                                          "Low Concern",
+                                                          "Moderate Concern", 
+                                                          "High Concern",
+                                                          "Very High Concern"))
+         
+  ) %>%
+  filter(!STATE_NAME %in% c("Puerto Rico", "District of Columbia", "Alaska", "Hawaii"))
+
+# replace_na(list(administered_dose1_pop_pct= 0,
+#                 series_complete_pop_pct = 0,
+#                 booster_doses_pop_pct =0,
+#                 administered_dose1_recip_5pluspop_pct =0,
+#                 series_complete_5pluspop_pct=0,
+#                 administered_dose1_recip_12pluspop_pct=0,
+#                 series_complete_12pluspop=0,
+#                 administered_dose1_recip_18pluspop_pct=0,
+#                 series_complete_18pluspop = 0,
+#                 booster_doses_18pluspop_pct = 0,
+#                 administered_dose1_recip_65pluspop_pct=0,
+#                 series_complete_65pluspop=0,
+#                 booster_doses_65pluspop_pct=0,
+#                 social_vulnerability_index = 0,
+#                 estimated_hesitant = 0,
+#                 test_positivity_rate_last_7_d=0,
+#                 ability_to_handle_a_covid=0)
+# )
 
 # simplify polygons
 us_county_covid <- rmapshaper::ms_simplify(us_county_covid, keep = 0.05, keep_shapes = TRUE)
 
+# us_county_covid %>% 
+#   write_rds("data/us_county_covid.RDS")
+# us_county_covid <- read_rds("data/us_county_covid.RDS")
+
+# # incrase the memory of the shinyapps.io to the largest 2048M
+# rsconnect::configureApp("COVID-19_US", size="xlarge")
+
+# lobstr::mem_used()
 
