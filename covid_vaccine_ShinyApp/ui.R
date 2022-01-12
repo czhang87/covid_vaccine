@@ -191,10 +191,10 @@ shinyUI(
           )
         ),
         
-        # Export tab
+        # Table tab
         tabItem(
-          tabName = "export",
-          h1("Export")
+          tabName = "table",
+          h1("Table")
           
         ),
         

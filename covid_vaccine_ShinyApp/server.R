@@ -33,6 +33,8 @@ shinyServer(function(session, input, output) {
   # Choropleth based on data types using leafletProxy in observe({})
   observe({
     
+    
+    
     # filter data based on metro status
     data_filtered <- us_county_covid %>%
       filter(metro_status %in% input$metro)
@@ -940,10 +942,33 @@ shinyServer(function(session, input, output) {
         coord_flip() # flip to horizontal boxplot
     })
     
+    #TABLE TAB
     
-    
-    #EXPORT TAB
-    
+    # output$datatable<- renderDataTable(
+    #   caption = tags$caption("Current COVID-19 data in The U.S.",
+    #                          style="color:white;text-align: Center;"),
+    #   rownames = FALSE,
+    #   options = list(dom = 't',
+    #                  columnDefs = list(list(className = 'dt-right', 
+    #                                         targets = 0:2))),
+    #   {
+    #     data_filtered %>%
+    #       select(NAME,
+    #              STATE_NAME,
+    #              Cases_per_100k_last_7_days,
+    #              test_positivity_rate_last_7_d,
+    #              conf_covid_admit_100k_last_7,
+    #              Deaths_per_100k_last_7_days,
+    #              administered_dose1_pop_pct,
+    #              series_complete_pop_pct,
+    #              booster_doses_pop_pct,
+    #              estimated_hesitant,
+    #              social_vulnerability_index,
+    #              ability_to_handle_a_covid,
+    #              metro_status,
+    #              svi_category,
+    #              cvac_category)
+    #   })
     
   })
 })
