@@ -2,8 +2,10 @@
 
 # Define UI for application 
 shinyUI(
-  
+
   dashboardPage(
+
+    
     dashboardHeader(
       title="COVID-19 in the U.S."
     ),
@@ -24,9 +26,9 @@ shinyUI(
           icon = icon('chart-area')
         ),
         menuItem(
-          "Export",
-          tabName = "export",
-          icon = icon('cloud-download-alt')
+          "Table",
+          tabName = "table",
+          icon = icon('table')
         ),
         menuItem(
           "About",
@@ -122,27 +124,33 @@ shinyUI(
           multiple = T
         ),
         
-        # conditional panel of export
-        conditionalPanel(
-          condition = "input.tabs == 'export'",
-          selectInput(
-            inputId = "county",
-            label = "Select or type in one county",
-            choices = NULL
-          )
-        ),
-        
         checkboxGroupInput(
           inputId = "metro",
           label = "Select the Metropolitan Status",
           choices = c("Metro" , "Non-metro"),
           selected = c("Metro" , "Non-metro")
+        ),
+        
+        # conditional panel of table
+        conditionalPanel(
+          condition = "input.tabs == 'table'",
+          pickerInput(
+            inputId = "table_columns_selected",
+            label = "Select Table Columns",
+            choices = table_columns,
+            options = list(`actions-box` = TRUE, `none-selected-text` = "Please make a selection!"),
+            selected = table_columns,
+            multiple = T,
+            choicesOpt = list(
+              style = rep(("color: black; background: white;"),20))
+          )
         )
         
       )
     ),
     
     dashboardBody(
+      
       tabItems(
         
         # Map tab
@@ -194,7 +202,8 @@ shinyUI(
         # Table tab
         tabItem(
           tabName = "table",
-          h1("Table")
+          h1("Table"), 
+          dataTableOutput("datatable")
           
         ),
         
