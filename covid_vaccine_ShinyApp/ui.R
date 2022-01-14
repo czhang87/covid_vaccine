@@ -36,6 +36,11 @@ shinyUI(
           icon = icon('info')
         ),
         
+        # Reset input button
+        actionBttn(
+          inputId = "reset_input",
+          label = "Reset Input"),
+        
         # conditional panel of map tab
         conditionalPanel(
           condition =  "input.tabs == 'map'",
@@ -78,6 +83,8 @@ shinyUI(
             choices = c("Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days",
                         "Test Positivity Rate Last 7 Days" = "test_positivity_rate_last_7_d",
                         "Hospitalizations per 100k Last 7 Days" = "conf_covid_admit_100k_last_7",
+                        "Percentage of ICU Occupied by COVID patients" = "pct_icu_covid",
+                        "Percentage of Ventilator Used by COVID patients" = "pct_vent_covid",
                         "Deaths per 100k Last 7 Days" = "Deaths_per_100k_last_7_days",
                         "At Least One Dose in All Age Groups"="administered_dose1_pop_pct",
                         "Fully Vaccinated in All Age Groups" = "series_complete_pop_pct",
@@ -93,6 +100,8 @@ shinyUI(
             choices = c("Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days",
                         "Test Positivity Rate Last 7 Days" = "test_positivity_rate_last_7_d",
                         "Hospitalizations per 100k Last 7 Days" = "conf_covid_admit_100k_last_7",
+                        "Percentage of ICU Occupied by COVID patients" = "pct_icu_covid",
+                        "Percentage of Ventilator Used by COVID patients" = "pct_vent_covid",
                         "Deaths per 100k Last 7 Days" = "Deaths_per_100k_last_7_days",
                         "At Least One Dose in All Age Groups"="administered_dose1_pop_pct",
                         "Fully Vaccinated in All Age Groups" = "series_complete_pop_pct",
@@ -109,6 +118,21 @@ shinyUI(
                         "CDC Social Vulnerability Index" = "svi_category",
                         "COVID-19 Vaccine Coverage Index" = "cvac_category"
             )
+          )
+        ),
+        
+        # conditional panel of table
+        conditionalPanel(
+          condition = "input.tabs == 'table'",
+          pickerInput(
+            inputId = "table_columns_selected",
+            label = "Select Table Columns",
+            choices = table_columns,
+            options = list(`actions-box` = TRUE, `none-selected-text` = "Please make a selection!"),
+            selected = table_columns,
+            multiple = T,
+            choicesOpt = list(
+              style = rep(("color: black; background: white;"),20))
           )
         ),
         
@@ -130,22 +154,14 @@ shinyUI(
           choices = c("Metro" , "Non-metro"),
           selected = c("Metro" , "Non-metro")
         ),
-        
-        # conditional panel of table
-        conditionalPanel(
-          condition = "input.tabs == 'table'",
-          pickerInput(
-            inputId = "table_columns_selected",
-            label = "Select Table Columns",
-            choices = table_columns,
-            options = list(`actions-box` = TRUE, `none-selected-text` = "Please make a selection!"),
-            selected = table_columns,
-            multiple = T,
-            choicesOpt = list(
-              style = rep(("color: black; background: white;"),20))
-          )
+        numericRangeInput(
+          inputId = "population",
+          label = "Enter the Population",
+          min = min_pop,
+          max = max_pop,
+          value = c(min_pop,max_pop),
+          step = 5000
         )
-        
       )
     ),
     
@@ -202,9 +218,21 @@ shinyUI(
         # Table tab
         tabItem(
           tabName = "table",
-          h1("Table"), 
-          dataTableOutput("datatable")
           
+          tabBox(
+            title = "Data Table for Download",
+            width = 12,
+            # The id lets us use input$tabset_datatable on the server to find the current tab
+            id = "tabset_datatable",
+            tabPanel("Customized", 
+                     downloadButton('download_customized_datatable', 'Download'),
+                     dataTableOutput("datatable_customized")
+            ),
+            tabPanel("Full", 
+                     downloadButton('download_full_datatable', 'Download'),
+                     dataTableOutput("datatable_full")
+            )
+          )
         ),
         
         # About tab

@@ -9,6 +9,71 @@ shinyServer(function(session, input, output) {
   #                     choices = us_county_covid[us_county_covid$STATE_NAME == input$state,]$NAME)
   # })
   
+  # Reset Input Button
+  observeEvent(input$reset_input, {
+    updateNumericRangeInput(session, "population", value = c(min_pop,max_pop))
+    updateSelectInput(session, "data_type", choices = c('Cases per 100k Last 7 Days',
+                                                        'Test Positivity Rate Last 7 Days',
+                                                        'Hospitalizations per 100k Last 7 Days', 
+                                                        'Deaths per 100k Last 7 Days',
+                                                        'Vaccination Percentage',
+                                                        'Vaccination Hesitancy', 
+                                                        'CDC Social Vulnerability Index',
+                                                        'COVID-19 Vaccine Coverage Index')
+    )
+    updateRadioButtons(session, "vaccination_status", choices = c('At Lease One Dose', 
+                                                                  'Fully Vaccinated', 
+                                                                  'Booster (or Additional) Dose')
+    )
+    updateSelectInput(session, "data_type", choices = c('Cases per 100k Last 7 Days',
+                                                        'Test Positivity Rate Last 7 Days',
+                                                        'Hospitalizations per 100k Last 7 Days', 
+                                                        'Deaths per 100k Last 7 Days',
+                                                        'Vaccination Percentage',
+                                                        'Vaccination Hesitancy', 
+                                                        'CDC Social Vulnerability Index',
+                                                        'COVID-19 Vaccine Coverage Index')
+    )
+    updateSelectInput(session, "xvariable", choices = c("Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days",
+                                                        "Test Positivity Rate Last 7 Days" = "test_positivity_rate_last_7_d",
+                                                        "Hospitalizations per 100k Last 7 Days" = "conf_covid_admit_100k_last_7",
+                                                        "Percentage of ICU Occupied by COVID patients" = "pct_icu_covid",
+                                                        "Percentage of Ventilator Used by COVID patients" = "pct_vent_covid",
+                                                        "Deaths per 100k Last 7 Days" = "Deaths_per_100k_last_7_days",
+                                                        "At Least One Dose in All Age Groups"="administered_dose1_pop_pct",
+                                                        "Fully Vaccinated in All Age Groups" = "series_complete_pop_pct",
+                                                        "Booster (or Additional) Dose in All Age Groups" = "booster_doses_pop_pct",
+                                                        "COVID-19 Vaccine Hesitancy Percentage" = "estimated_hesitant",
+                                                        "CDC Social Vulnerability Index" = "social_vulnerability_index",
+                                                        "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid")
+    )
+    updateSelectInput(session, "yvariable",choices = c("Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days",
+                                                       "Test Positivity Rate Last 7 Days" = "test_positivity_rate_last_7_d",
+                                                       "Hospitalizations per 100k Last 7 Days" = "conf_covid_admit_100k_last_7",
+                                                       "Percentage of ICU Occupied by COVID patients" = "pct_icu_covid",
+                                                       "Percentage of Ventilator Used by COVID patients" = "pct_vent_covid",
+                                                       "Deaths per 100k Last 7 Days" = "Deaths_per_100k_last_7_days",
+                                                       "At Least One Dose in All Age Groups"="administered_dose1_pop_pct",
+                                                       "Fully Vaccinated in All Age Groups" = "series_complete_pop_pct",
+                                                       "Booster (or Additional) Dose in All Age Groups" = "booster_doses_pop_pct",
+                                                       "COVID-19 Vaccine Hesitancy Percentage" = "estimated_hesitant",
+                                                       "CDC Social Vulnerability Index" = "social_vulnerability_index",
+                                                       "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid")
+    )
+    updateSelectInput(session, "hue", choices = c("Metropolitan Status"="metro_status",
+                                                  "CDC Social Vulnerability Index" = "svi_category",
+                                                  "COVID-19 Vaccine Coverage Index" = "cvac_category"
+    ))
+    updatePickerInput(session, "table_columns_selected", choices = table_columns)
+    # updateSelectInput(session, "state", )
+    # updateSelectInput(session, "xvariable", )
+    # updateSelectInput(session, "xvariable", )
+    # updateSelectInput(session, "xvariable", )
+    # updateSelectInput(session, "xvariable", )
+    # updateSelectInput(session, "xvariable", )
+    
+  })
+  
   # MAP TAB
   
   # Initial view
@@ -37,7 +102,8 @@ shinyServer(function(session, input, output) {
     
     # filter data based on metro status
     data_filtered <- us_county_covid %>%
-      filter(metro_status %in% input$metro)
+      filter(metro_status %in% input$metro) %>% 
+      filter(between(POPULATION, input$population[1], input$population[2]))
     
     # filter data based on state
     if("United States" %in% input$state){
@@ -893,26 +959,21 @@ shinyServer(function(session, input, output) {
              !(is.na(svi_category))
       )
       
-    my.formula <- y ~ x
-    
     output$scatter <- renderPlot({
       p <- data_filtered %>% 
         ggplot(aes_string(x = input$xvariable, y = input$yvariable, color = input$hue)) +
-        geom_point(alpha = 0.5)+
+        geom_point(aes(size= POPULATION), alpha = 0.5)+
         geom_smooth(method = lm, formula = my.formula)+
-        stat_poly_eq(formula = my.formula, 
-                     aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), 
-                     parse = TRUE) + # add formula and R^2 to the plot
         theme_bw()+ # remove the background
-        theme(legend.position="bottom") # move the figure legend to the bottom
+        theme(legend.position="bottom")+ 
+        scale_size_continuous(labels= comma, name = "Population")
       
-      
-      # p<- ggMarginal(p, type= "histogram", fill = "blue") # add marginal histogram
       p+ facet_grid(reformulate(input$hue))+
-        labs(x=names(switch_labels[which(switch_labels == input$xvariable)]), 
+        labs(x=names(switch_labels[which(switch_labels == input$xvariable)]),
              y=names(switch_labels[which(switch_labels == input$yvariable)]),
              col=names(hue_labels[which(hue_labels == input$hue)])
         )
+      
     })
     
     
@@ -944,31 +1005,36 @@ shinyServer(function(session, input, output) {
     
     #TABLE TAB
     
-    output$datatable<- renderDataTable(
-      # data_filtered %>%
-      #   select(NAME,
-      #          STATE_NAME,
-      #          Cases_per_100k_last_7_days,
-      #          test_positivity_rate_last_7_d,
-      #          conf_covid_admit_100k_last_7,
-      #          Deaths_per_100k_last_7_days,
-      #          administered_dose1_pop_pct,
-      #          series_complete_pop_pct,
-      #          booster_doses_pop_pct,
-      #          estimated_hesitant,
-      #          social_vulnerability_index,
-      #          ability_to_handle_a_covid,
-      #          metro_status,
-      #          svi_category,
-      #          cvac_category),
-      data_filtered[, input$table_columns_selected],
+    # Customized data table
+    output$datatable_customized<- renderDataTable(
+      as.tibble(data_filtered)[, input$table_columns_selected],
       options = list(
         pageLength=10, scrollX='400px'),
-      filter = 'top',
-      
-      
-      
-      
+      filter = 'top'
     )
+    
+    # Full data table
+    output$datatable_full<- renderDataTable(
+      as.tibble(us_county_covid),
+      options = list(
+        pageLength=10, scrollX='400px'),
+      filter = 'top'
+    )
+    
+    # Download buttons
+    output$download_customized_datatable <- downloadHandler(
+      filename = function(){'us_county_covid_customized.csv'},
+      content = function(fname) {
+        write.csv(as.tibble(data_filtered)[, input$table_columns_selected], fname)
+      }
+    )
+    
+    output$download_full_datatable <- downloadHandler(
+      filename = function(){'us_county_covid.csv'},
+      content = function(fname) {
+        write.csv(as.tibble(us_county_covid %>% select(-geometry)), fname)
+      }
+    )
+    
   })
 })

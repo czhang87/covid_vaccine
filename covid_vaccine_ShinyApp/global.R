@@ -17,6 +17,8 @@ library(ggbeeswarm)
 library(DT)
 library(shinyWidgets)
 library(dashboardthemes)
+library(scales)
+
  
 # # set working directory
 setwd("~/Documents/Data Science/bootcamp/NSS/DS5/nss_projects/covid_vaccine/covid_vaccine_ShinyApp")
@@ -100,29 +102,39 @@ switch_labels <- c("Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days",
                    "Booster (or Additional) Dose in All Age Groups" = "booster_doses_pop_pct",
                    "COVID-19 Vaccine Hesitancy Percentage" = "estimated_hesitant",
                    "CDC Social Vulnerability Index" = "social_vulnerability_index",
-                   "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid"
+                   "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid",
+                   "Percentage of ICU Occupied by COVID patients" = "pct_icu_covid",
+                   "Percentage of Ventilator Used by COVID patients" = "pct_vent_covid"
 )
 
 hue_labels<- c(
   "Metropolitan Status"="metro_status",
   "CDC Social Vulnerability Index" = "svi_category",
-  "COVID-19 Vaccine Coverage Index" = "cvac_category"
+  "COVID-19 Vaccine Coverage Index" = "cvac_category",
+  "Population" = "POPULATION"
 )
 
-table_columns<- c("Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days",
+table_columns<- c("County"="NAME",
+                  "State" = "STATE_NAME",
+                  "Population" = "POPULATION",
+                  "Metropolitan Status"="metro_status",
+                  "Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days",
                   "Test Positivity Rate Last 7 Days" = "test_positivity_rate_last_7_d",
                   "Hospitalizations per 100k Last 7 Days" = "conf_covid_admit_100k_last_7",
+                  "Percentage of ICU Occupied by COVID patients" = "pct_icu_covid",
+                  "Percentage of Ventilator Used by COVID patients" = "pct_vent_covid",
                   "Deaths per 100k Last 7 Days" = "Deaths_per_100k_last_7_days",
                   "At Least One Dose in All Age Groups"="administered_dose1_pop_pct",
                   "Fully Vaccinated in All Age Groups" = "series_complete_pop_pct",
                   "Booster (or Additional) Dose in All Age Groups" = "booster_doses_pop_pct",
                   "COVID-19 Vaccine Hesitancy Percentage" = "estimated_hesitant",
                   "CDC Social Vulnerability Index" = "social_vulnerability_index",
-                  "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid",
-                  "Metropolitan Status"="metro_status",
                   "CDC Social Vulnerability Index" = "svi_category",
+                  "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid",
                   "COVID-19 Vaccine Coverage Index" = "cvac_category")
 
+min_pop <- min(us_county_covid$POPULATION)
+max_pop <- max(us_county_covid$POPULATION)
 
 # # incrase the memory of the shinyapps.io to the largest 2048M
 # rsconnect::configureApp("COVID-19_US", size="xlarge")
