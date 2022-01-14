@@ -11,66 +11,22 @@ shinyServer(function(session, input, output) {
   
   # Reset Input Button
   observeEvent(input$reset_input, {
+    
+    updateSelectInput(session, "data_type", choices = choices_data_type)
+    updateRadioButtons(session, "vaccination_status", choices = choices_vaccination_status)
+    updateSelectInput(session, "data_type", choices = choices_data_type
+    )
+    updateSelectInput(session, "xvariable", choices = choices_xvariable
+    )
+    updateSelectInput(session, "yvariable",choices = choices_yvariable
+    )
+    updateSelectInput(session, "hue", choices = hue_labels)
+    updatePickerInput(session, "table_columns_selected", selected = table_columns, choices = table_columns,
+                      choicesOpt = list(
+                        style = rep(("color: black; background: white;"),20)))
+    updateSelectInput(session, "state", selected = "United States", choices = choices_state)
+    updateCheckboxGroupInput(session, "metro", selected = choices_metro, choices = choices_metro)
     updateNumericRangeInput(session, "population", value = c(min_pop,max_pop))
-    updateSelectInput(session, "data_type", choices = c('Cases per 100k Last 7 Days',
-                                                        'Test Positivity Rate Last 7 Days',
-                                                        'Hospitalizations per 100k Last 7 Days', 
-                                                        'Deaths per 100k Last 7 Days',
-                                                        'Vaccination Percentage',
-                                                        'Vaccination Hesitancy', 
-                                                        'CDC Social Vulnerability Index',
-                                                        'COVID-19 Vaccine Coverage Index')
-    )
-    updateRadioButtons(session, "vaccination_status", choices = c('At Lease One Dose', 
-                                                                  'Fully Vaccinated', 
-                                                                  'Booster (or Additional) Dose')
-    )
-    updateSelectInput(session, "data_type", choices = c('Cases per 100k Last 7 Days',
-                                                        'Test Positivity Rate Last 7 Days',
-                                                        'Hospitalizations per 100k Last 7 Days', 
-                                                        'Deaths per 100k Last 7 Days',
-                                                        'Vaccination Percentage',
-                                                        'Vaccination Hesitancy', 
-                                                        'CDC Social Vulnerability Index',
-                                                        'COVID-19 Vaccine Coverage Index')
-    )
-    updateSelectInput(session, "xvariable", choices = c("Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days",
-                                                        "Test Positivity Rate Last 7 Days" = "test_positivity_rate_last_7_d",
-                                                        "Hospitalizations per 100k Last 7 Days" = "conf_covid_admit_100k_last_7",
-                                                        "Percentage of ICU Occupied by COVID patients" = "pct_icu_covid",
-                                                        "Percentage of Ventilator Used by COVID patients" = "pct_vent_covid",
-                                                        "Deaths per 100k Last 7 Days" = "Deaths_per_100k_last_7_days",
-                                                        "At Least One Dose in All Age Groups"="administered_dose1_pop_pct",
-                                                        "Fully Vaccinated in All Age Groups" = "series_complete_pop_pct",
-                                                        "Booster (or Additional) Dose in All Age Groups" = "booster_doses_pop_pct",
-                                                        "COVID-19 Vaccine Hesitancy Percentage" = "estimated_hesitant",
-                                                        "CDC Social Vulnerability Index" = "social_vulnerability_index",
-                                                        "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid")
-    )
-    updateSelectInput(session, "yvariable",choices = c("Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days",
-                                                       "Test Positivity Rate Last 7 Days" = "test_positivity_rate_last_7_d",
-                                                       "Hospitalizations per 100k Last 7 Days" = "conf_covid_admit_100k_last_7",
-                                                       "Percentage of ICU Occupied by COVID patients" = "pct_icu_covid",
-                                                       "Percentage of Ventilator Used by COVID patients" = "pct_vent_covid",
-                                                       "Deaths per 100k Last 7 Days" = "Deaths_per_100k_last_7_days",
-                                                       "At Least One Dose in All Age Groups"="administered_dose1_pop_pct",
-                                                       "Fully Vaccinated in All Age Groups" = "series_complete_pop_pct",
-                                                       "Booster (or Additional) Dose in All Age Groups" = "booster_doses_pop_pct",
-                                                       "COVID-19 Vaccine Hesitancy Percentage" = "estimated_hesitant",
-                                                       "CDC Social Vulnerability Index" = "social_vulnerability_index",
-                                                       "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid")
-    )
-    updateSelectInput(session, "hue", choices = c("Metropolitan Status"="metro_status",
-                                                  "CDC Social Vulnerability Index" = "svi_category",
-                                                  "COVID-19 Vaccine Coverage Index" = "cvac_category"
-    ))
-    updatePickerInput(session, "table_columns_selected", choices = table_columns)
-    # updateSelectInput(session, "state", )
-    # updateSelectInput(session, "xvariable", )
-    # updateSelectInput(session, "xvariable", )
-    # updateSelectInput(session, "xvariable", )
-    # updateSelectInput(session, "xvariable", )
-    # updateSelectInput(session, "xvariable", )
     
   })
   

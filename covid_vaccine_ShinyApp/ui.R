@@ -47,14 +47,7 @@ shinyUI(
           selectInput(
             inputId = "data_type",
             label = "Select the Data Type",
-            choices = c('Cases per 100k Last 7 Days',
-                        'Test Positivity Rate Last 7 Days',
-                        'Hospitalizations per 100k Last 7 Days', 
-                        'Deaths per 100k Last 7 Days',
-                        'Vaccination Percentage',
-                        'Vaccination Hesitancy', 
-                        'CDC Social Vulnerability Index',
-                        'COVID-19 Vaccine Coverage Index')
+            choices = choices_data_type
           ),
           
           # conditional panel of vaccination percentage
@@ -63,12 +56,12 @@ shinyUI(
             radioButtons(
               inputId = "vaccination_status",
               label = "Select the Vaccination Status",
-              choices = c('At Lease One Dose', 'Fully Vaccinated', 'Booster (or Additional) Dose')
+              choices = choices_vaccination_status
             ),
             selectInput(
               inputId = "age",
               label = "Vaccination Age Group",
-              choices = c("All Age Groups","≥ 5 Years", "≥ 12 Years", "≥ 18 Years", "≥ 65 Years")
+              choices = choices_age
             )
           )
         ),
@@ -80,44 +73,17 @@ shinyUI(
           selectInput(
             inputId = "xvariable",
             label = "Select a Variable For The X-axis",
-            choices = c("Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days",
-                        "Test Positivity Rate Last 7 Days" = "test_positivity_rate_last_7_d",
-                        "Hospitalizations per 100k Last 7 Days" = "conf_covid_admit_100k_last_7",
-                        "Percentage of ICU Occupied by COVID patients" = "pct_icu_covid",
-                        "Percentage of Ventilator Used by COVID patients" = "pct_vent_covid",
-                        "Deaths per 100k Last 7 Days" = "Deaths_per_100k_last_7_days",
-                        "At Least One Dose in All Age Groups"="administered_dose1_pop_pct",
-                        "Fully Vaccinated in All Age Groups" = "series_complete_pop_pct",
-                        "Booster (or Additional) Dose in All Age Groups" = "booster_doses_pop_pct",
-                        "COVID-19 Vaccine Hesitancy Percentage" = "estimated_hesitant",
-                        "CDC Social Vulnerability Index" = "social_vulnerability_index",
-                        "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid"
-            )
+            choices = choices_xvariable
           ),
           selectInput(
             inputId = "yvariable",
             label = "Select a Variable For The Y-axis",
-            choices = c("Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days",
-                        "Test Positivity Rate Last 7 Days" = "test_positivity_rate_last_7_d",
-                        "Hospitalizations per 100k Last 7 Days" = "conf_covid_admit_100k_last_7",
-                        "Percentage of ICU Occupied by COVID patients" = "pct_icu_covid",
-                        "Percentage of Ventilator Used by COVID patients" = "pct_vent_covid",
-                        "Deaths per 100k Last 7 Days" = "Deaths_per_100k_last_7_days",
-                        "At Least One Dose in All Age Groups"="administered_dose1_pop_pct",
-                        "Fully Vaccinated in All Age Groups" = "series_complete_pop_pct",
-                        "Booster (or Additional) Dose in All Age Groups" = "booster_doses_pop_pct",
-                        "COVID-19 Vaccine Hesitancy Percentage" = "estimated_hesitant",
-                        "CDC Social Vulnerability Index" = "social_vulnerability_index",
-                        "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid"
-            )
+            choices = choices_yvariable
           ),
           selectInput(
             inputId = "hue",
             label = "Select a Comparison Category",
-            choices = c("Metropolitan Status"="metro_status",
-                        "CDC Social Vulnerability Index" = "svi_category",
-                        "COVID-19 Vaccine Coverage Index" = "cvac_category"
-            )
+            choices = hue_labels
           )
         ),
         
@@ -140,10 +106,7 @@ shinyUI(
         selectInput(
           inputId = "state",
           label = "Select or Type in One or Multiple states",
-          choices = c("United States", us_county_covid %>%
-                        pull(STATE_NAME) %>%
-                        unique() %>%
-                        sort()),
+          choices = choices_state,
           selected = "United States",
           multiple = T
         ),
@@ -151,8 +114,8 @@ shinyUI(
         checkboxGroupInput(
           inputId = "metro",
           label = "Select the Metropolitan Status",
-          choices = c("Metro" , "Non-metro"),
-          selected = c("Metro" , "Non-metro")
+          choices = choices_metro,
+          selected = choices_metro
         ),
         numericRangeInput(
           inputId = "population",
@@ -191,11 +154,6 @@ shinyUI(
               )
               
             )
-            # ,
-            # column(
-            #   width = 6
-            # 
-            # )
           ),
           fluidRow(
             column(
