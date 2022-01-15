@@ -136,7 +136,7 @@ shinyUI(
         tabItem(
           tabName = "map",
           tags$style(type = "text/css", "#map {height: calc(100vh - 80px) !important;}"),# increase the height of the map
-          leafletOutput("map")
+          leafletOutput("map") %>% withSpinner(color="#0dc5c1")
           
         ),
         
@@ -150,7 +150,7 @@ shinyUI(
               width = 12,
               box(
                 title = uiOutput("scatter_title"), width = NULL, status = "primary",solidHeader = T,
-                plotOutput("scatter")
+                plotOutput("scatter") %>% withSpinner(color="#0dc5c1")
               )
               
             )
@@ -160,14 +160,14 @@ shinyUI(
               width = 6,
               box(
                 title = uiOutput("yboxplot_title"), width = NULL, status = "primary",solidHeader = T,
-                plotlyOutput("yboxplot")
+                plotlyOutput("yboxplot") %>% withSpinner(color="#0dc5c1")
               )
             ),
             column(
               width = 6,
               box(
                 title = uiOutput("xboxplot_title"), width = NULL, status = "primary",solidHeader = T,
-                plotlyOutput("xboxplot")
+                plotlyOutput("xboxplot") %>% withSpinner(color="#0dc5c1")
               )
             )
           )
@@ -184,11 +184,11 @@ shinyUI(
             id = "tabset_datatable",
             tabPanel("Customized", 
                      downloadButton('download_customized_datatable', 'Download'),
-                     dataTableOutput("datatable_customized")
+                     dataTableOutput("datatable_customized") %>% withSpinner(color="#0dc5c1")
             ),
             tabPanel("Full", 
                      downloadButton('download_full_datatable', 'Download'),
-                     dataTableOutput("datatable_full")
+                     dataTableOutput("datatable_full") %>% withSpinner(color="#0dc5c1")
             )
           )
         ),

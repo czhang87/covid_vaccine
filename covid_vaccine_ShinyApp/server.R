@@ -32,11 +32,6 @@ shinyServer(function(session, input, output) {
   
   # MAP TAB
   
-  # Initial view
-  initial_lat = 39.8283
-  initial_lng = -98.5795
-  initial_zoom = 4
-  
   # Leaflet map
   output$map <- renderLeaflet({
     leaflet() %>%
@@ -47,7 +42,7 @@ shinyServer(function(session, input, output) {
   
   # Reset button in the map
   observe({
-    input$reset_button
+    input$reset_map
     leafletProxy("map") %>% setView(lat = initial_lat, lng = initial_lng, zoom = initial_zoom)
   })
   
@@ -209,7 +204,7 @@ shinyServer(function(session, input, output) {
             clearControls() %>% # clear the map legend
             clearShapes() %>% # clear polygons fill color
             addControl(
-              actionButton("reset_button", "Reset"),
+              actionBttn("reset_map", "", icon = icon("globe-americas")),
               position="topleft") %>% # add Reset View button in the map
             addPolygons(
               data = data_filtered,
@@ -241,7 +236,7 @@ shinyServer(function(session, input, output) {
             clearControls() %>% # clear the map legend
             clearShapes() %>% # clear polygons fill color
             addControl(
-              actionButton("reset_button", "Reset"),
+              actionBttn("reset_map", "", icon = icon("globe-americas")),
               position="topleft") %>% # add Reset View button in the map
             addPolygons(
               data = data_filtered,
@@ -274,7 +269,7 @@ shinyServer(function(session, input, output) {
             clearControls() %>% # clear the map legend
             clearShapes() %>% # clear polygons fill color
             addControl(
-              actionButton("reset_button", "Reset"),
+              actionBttn("reset_map", "", icon = icon("globe-americas")),
               position="topleft") %>% # add Reset View button in the map
             addPolygons(
               data = data_filtered,
@@ -306,7 +301,7 @@ shinyServer(function(session, input, output) {
             clearControls() %>% # clear the map legend
             clearShapes() %>% # clear polygons fill color
             addControl(
-              actionButton("reset_button", "Reset"),
+              actionBttn("reset_map", "", icon = icon("globe-americas")),
               position="topleft") %>% # add Reset View button in the map
             addPolygons(
               data = data_filtered,
@@ -338,7 +333,7 @@ shinyServer(function(session, input, output) {
             clearControls() %>% # clear the map legend
             clearShapes() %>% # clear polygons fill color
             addControl(
-              actionButton("reset_button", "Reset"),
+              actionBttn("reset_map", "", icon = icon("globe-americas")),
               position="topleft") %>% # add Reset View button in the map
             addPolygons(
               data = data_filtered,
@@ -376,7 +371,7 @@ shinyServer(function(session, input, output) {
             clearControls() %>% # clear the map legend
             clearShapes() %>% # clear polygons fill color
             addControl(
-              actionButton("reset_button", "Reset"),
+              actionBttn("reset_map", "", icon = icon("globe-americas")),
               position="topleft") %>% # add Reset View button in the map
             addPolygons(
               data = data_filtered,
@@ -408,7 +403,7 @@ shinyServer(function(session, input, output) {
             clearControls() %>% # clear the map legend
             clearShapes() %>% # clear polygons fill color
             addControl(
-              actionButton("reset_button", "Reset"),
+              actionBttn("reset_map", "", icon = icon("globe-americas")),
               position="topleft") %>% # add Reset View button in the map
             addPolygons(
               data = data_filtered,
@@ -441,7 +436,7 @@ shinyServer(function(session, input, output) {
             clearControls() %>% # clear the map legend
             clearShapes() %>% # clear polygons fill color
             addControl(
-              actionButton("reset_button", "Reset"),
+              actionBttn("reset_map", "", icon = icon("globe-americas")),
               position="topleft") %>% # add Reset View button in the map
             addPolygons(
               data = data_filtered,
@@ -473,7 +468,7 @@ shinyServer(function(session, input, output) {
             clearControls() %>% # clear the map legend
             clearShapes() %>% # clear polygons fill color
             addControl(
-              actionButton("reset_button", "Reset"),
+              actionBttn("reset_map", "", icon = icon("globe-americas")),
               position="topleft") %>% # add Reset View button in the map
             addPolygons(
               data = data_filtered,
@@ -505,7 +500,7 @@ shinyServer(function(session, input, output) {
             clearControls() %>% # clear the map legend
             clearShapes() %>% # clear polygons fill color
             addControl(
-              actionButton("reset_button", "Reset"),
+              actionBttn("reset_map", "", icon = icon("globe-americas")),
               position="topleft") %>% # add Reset View button in the map
             addPolygons(
               data = data_filtered,
@@ -541,7 +536,7 @@ shinyServer(function(session, input, output) {
             clearControls() %>% # clear the map legend
             clearShapes() %>% # clear polygons fill color
             addControl(
-              actionButton("reset_button", "Reset"),
+              actionBttn("reset_map", "", icon = icon("globe-americas")),
               position="topleft") %>% # add Reset View button in the map
             addPolygons(
               data = data_filtered,
@@ -573,7 +568,7 @@ shinyServer(function(session, input, output) {
             clearControls() %>% # clear the map legend
             clearShapes() %>% # clear polygons fill color
             addControl(
-              actionButton("reset_button", "Reset"),
+              actionBttn("reset_map", "", icon = icon("globe-americas")),
               position="topleft") %>% # add Reset View button in the map
             addPolygons(
               data = data_filtered,
@@ -608,7 +603,7 @@ shinyServer(function(session, input, output) {
             clearControls() %>% # clear the map legend
             clearShapes() %>% # clear polygons fill color
             addControl(
-              actionButton("reset_button", "Reset"),
+              actionBttn("reset_map", "", icon = icon("globe-americas")),
               position="topleft") %>% # add Reset View button in the map
             addPolygons(
               data = data_filtered,
@@ -647,7 +642,7 @@ shinyServer(function(session, input, output) {
         clearControls() %>%
         clearShapes() %>%
         addControl(
-          actionButton("reset_button", "Reset"),
+          actionBttn("reset_map", "", icon = icon("globe-americas")),
           position="topleft") %>%
         addPolygons(
           data = data_filtered,
@@ -682,7 +677,7 @@ shinyServer(function(session, input, output) {
         clearControls() %>%
         clearShapes() %>%
         addControl(
-          actionButton("reset_button", "Reset"),
+          actionBttn("reset_map", "", icon = icon("globe-americas")),
           position="topleft") %>%
         addPolygons(
           data = data_filtered,
@@ -717,7 +712,7 @@ shinyServer(function(session, input, output) {
         clearControls() %>%
         clearShapes() %>%
         addControl(
-          actionButton("reset_button", "Reset"),
+          actionBttn("reset_map", "", icon = icon("globe-americas")),
           position="topleft") %>%
         addPolygons(
           data = data_filtered,
@@ -752,7 +747,7 @@ shinyServer(function(session, input, output) {
         clearControls() %>%
         clearShapes() %>%
         addControl(
-          actionButton("reset_button", "Reset"),
+          actionBttn("reset_map", "", icon = icon("globe-americas")),
           position="topleft") %>%
         addPolygons(
           data = data_filtered,
@@ -786,7 +781,7 @@ shinyServer(function(session, input, output) {
         clearControls() %>%
         clearShapes() %>%
         addControl(
-          actionButton("reset_button", "Reset"),
+          actionBttn("reset_map", "", icon = icon("globe-americas")),
           position="topleft") %>%
         addPolygons(
           data = data_filtered,
@@ -823,7 +818,7 @@ shinyServer(function(session, input, output) {
         clearControls() %>%
         clearShapes() %>%
         addControl(
-          actionButton("reset_button", "Reset"),
+          actionBttn("reset_map", "", icon = icon("globe-americas")),
           position="topleft") %>%
         addPolygons(
           data = data_filtered,
@@ -858,7 +853,7 @@ shinyServer(function(session, input, output) {
         clearControls() %>%
         clearShapes() %>%
         addControl(
-          actionButton("reset_button", "Reset"),
+          actionBttn("reset_map", "", icon = icon("globe-americas")),
           position="topleft") %>%
         addPolygons(
           data = data_filtered,
@@ -915,6 +910,7 @@ shinyServer(function(session, input, output) {
              !(is.na(svi_category))
       )
       
+    my.formula <- y~x
     output$scatter <- renderPlot({
       p <- data_filtered %>% 
         ggplot(aes_string(x = input$xvariable, y = input$yvariable, color = input$hue)) +
@@ -963,7 +959,7 @@ shinyServer(function(session, input, output) {
     
     # Customized data table
     output$datatable_customized<- renderDataTable(
-      as.tibble(data_filtered)[, input$table_columns_selected],
+      as_tibble(data_filtered)[, input$table_columns_selected],
       options = list(
         pageLength=10, scrollX='400px'),
       filter = 'top'
@@ -971,7 +967,7 @@ shinyServer(function(session, input, output) {
     
     # Full data table
     output$datatable_full<- renderDataTable(
-      as.tibble(us_county_covid),
+      as_tibble(us_county_covid),
       options = list(
         pageLength=10, scrollX='400px'),
       filter = 'top'
@@ -981,14 +977,14 @@ shinyServer(function(session, input, output) {
     output$download_customized_datatable <- downloadHandler(
       filename = function(){'us_county_covid_customized.csv'},
       content = function(fname) {
-        write.csv(as.tibble(data_filtered)[, input$table_columns_selected], fname)
+        write.csv(as_tibble(data_filtered)[, input$table_columns_selected], fname)
       }
     )
     
     output$download_full_datatable <- downloadHandler(
       filename = function(){'us_county_covid.csv'},
       content = function(fname) {
-        write.csv(as.tibble(us_county_covid %>% select(-geometry)), fname)
+        write.csv(as_tibble(us_county_covid %>% select(-geometry)), fname)
       }
     )
     

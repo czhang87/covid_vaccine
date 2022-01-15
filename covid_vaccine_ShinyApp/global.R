@@ -18,10 +18,12 @@ library(DT)
 library(shinyWidgets)
 library(dashboardthemes)
 library(scales)
+library(shinycssloaders)
+
 
  
 # # set working directory
-setwd("~/Documents/Data Science/bootcamp/NSS/DS5/nss_projects/covid_vaccine/covid_vaccine_ShinyApp")
+# setwd("~/Documents/Data Science/bootcamp/NSS/DS5/nss_projects/covid_vaccine/covid_vaccine_ShinyApp")
 
 # #####################################################################################################
 # # Geospatial data with demographic info
@@ -89,7 +91,8 @@ us_county_covid <- us_county_covid %>%
                                                           "Very High Concern"))
 
   ) %>%
-  filter(!STATE_NAME %in% c("Puerto Rico", "District of Columbia", "Alaska", "Hawaii"))
+  filter(!STATE_NAME %in% c("Puerto Rico"))
+# , "District of Columbia", "Alaska", "Hawaii"
 
 # labels for legends and titles
 
@@ -168,11 +171,11 @@ table_columns<- c("County"="NAME",
                   "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid",
                   "COVID-19 Vaccine Coverage Index" = "cvac_category")
 
+# Range of numericRangeInput
 min_pop <- min(us_county_covid$POPULATION)
 max_pop <- max(us_county_covid$POPULATION)
 
-# # incrase the memory of the shinyapps.io to the largest 2048M
-# rsconnect::configureApp("COVID-19_US", size="xlarge")
-
-# lobstr::mem_used()
-
+# Initial view
+initial_lat = 39.8283
+initial_lng = -98.5795
+initial_zoom = 4
