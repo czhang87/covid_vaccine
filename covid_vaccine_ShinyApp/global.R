@@ -19,6 +19,8 @@ library(shinyWidgets)
 library(dashboardthemes)
 library(scales)
 library(shinycssloaders)
+library(ggcorrplot)
+library(repr)
 
 
  
@@ -171,6 +173,19 @@ table_columns<- c("County"="NAME",
                   "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid",
                   "COVID-19 Vaccine Coverage Index" = "cvac_category")
 
+labels_corr<- c("Cases_per_100k_last_7_days" = "Cases per 100k Last 7 Days",
+                "test_positivity_rate_last_7_d"="Test Positivity Rate Last 7 Days",
+                "conf_covid_admit_100k_last_7"="Hospitalizations per 100k Last 7 Days",
+                "pct_icu_covid"="Percentage of ICU Occupied by COVID patients",
+                "pct_vent_covid"="Percentage of Ventilator Used by COVID patients",
+                "Deaths_per_100k_last_7_days"="Deaths per 100k Last 7 Days",
+                "administered_dose1_pop_pct"="At Least One Dose in All Age Groups",
+                "series_complete_pop_pct"= "Fully Vaccinated in All Age Groups",
+                "booster_doses_pop_pct"="Booster (or Additional) Dose in All Age Groups",
+                "estimated_hesitant"="COVID-19 Vaccine Hesitancy Percentage",
+                "social_vulnerability_index"="CDC Social Vulnerability Index",
+                "ability_to_handle_a_covid"="COVID-19 Vaccine Coverage Index")
+
 # Range of numericRangeInput
 min_pop <- min(us_county_covid$POPULATION)
 max_pop <- max(us_county_covid$POPULATION)
@@ -179,3 +194,6 @@ max_pop <- max(us_county_covid$POPULATION)
 initial_lat = 39.8283
 initial_lng = -98.5795
 initial_zoom = 4
+
+# element_text()
+black.bold.plain.18.text<- element_text(color = "black", face = "bold", size="18" )

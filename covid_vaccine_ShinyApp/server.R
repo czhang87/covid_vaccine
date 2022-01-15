@@ -14,12 +14,9 @@ shinyServer(function(session, input, output) {
     
     updateSelectInput(session, "data_type", choices = choices_data_type)
     updateRadioButtons(session, "vaccination_status", choices = choices_vaccination_status)
-    updateSelectInput(session, "data_type", choices = choices_data_type
-    )
-    updateSelectInput(session, "xvariable", choices = choices_xvariable
-    )
-    updateSelectInput(session, "yvariable",choices = choices_yvariable
-    )
+    updateSelectInput(session, "data_type", choices = choices_data_type)
+    updateSelectInput(session, "xvariable", choices = choices_xvariable)
+    updateSelectInput(session, "yvariable",choices = choices_yvariable, selected = "test_positivity_rate_last_7_d")
     updateSelectInput(session, "hue", choices = hue_labels)
     updatePickerInput(session, "table_columns_selected", selected = table_columns, choices = table_columns,
                       choicesOpt = list(
@@ -46,11 +43,10 @@ shinyServer(function(session, input, output) {
     leafletProxy("map") %>% setView(lat = initial_lat, lng = initial_lng, zoom = initial_zoom)
   })
   
-  # Choropleth based on data types using leafletProxy in observe({})
+  
   observe({
     
-    
-    
+    # Choropleth based on data types using leafletProxy in observe({})
     # filter data based on metro status
     data_filtered <- us_county_covid %>%
       filter(metro_status %in% input$metro) %>% 
@@ -68,6 +64,7 @@ shinyServer(function(session, input, output) {
     # labels of vaccination percentage for the map popup
     labels_all_ages <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
       "At lease one dose:", data_filtered$administered_dose1_pop_pct, "%<br/>",
       "Fully vaccinated:", data_filtered$series_complete_pop_pct,"%<br/>",
       "Booster dose:", data_filtered$booster_doses_pop_pct,"%<br/>",
@@ -77,6 +74,7 @@ shinyServer(function(session, input, output) {
     
     labels_5plus <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
       "At lease one dose:", data_filtered$administered_dose1_recip_5pluspop_pct, "%<br/>",
       "Fully vaccinated:", data_filtered$series_complete_5pluspop_pct,"%<br/>",
       "Booster dose:", data_filtered$booster_doses_pop_pct,"%<br/>",
@@ -86,6 +84,7 @@ shinyServer(function(session, input, output) {
     
     labels_12plus <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
       "At lease one dose:", data_filtered$administered_dose1_recip_12pluspop_pct, "%<br/>",
       "Fully vaccinated:", data_filtered$series_complete_12pluspop,"%<br/>",
       "Booster dose:", data_filtered$booster_doses_pop_pct,"%<br/>",
@@ -95,6 +94,7 @@ shinyServer(function(session, input, output) {
     
     labels_18plus <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
       "At lease one dose:", data_filtered$administered_dose1_recip_18pluspop_pct, "%<br/>",
       "Fully vaccinated:", data_filtered$series_complete_18pluspop,"%<br/>",
       "Booster dose:", data_filtered$booster_doses_18pluspop_pct,"%<br/>",
@@ -104,6 +104,7 @@ shinyServer(function(session, input, output) {
     
     labels_65plus <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
       "At lease one dose:", data_filtered$administered_dose1_recip_65pluspop_pct, "%<br/>",
       "Fully vaccinated:", data_filtered$series_complete_65pluspop,"%<br/>",
       "Booster dose:", data_filtered$booster_doses_65pluspop_pct,"%<br/>",
@@ -114,6 +115,7 @@ shinyServer(function(session, input, output) {
     # labels of cases
     labels_cases <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
       "Cases per 100k Last 7 Days:", data_filtered$Cases_per_100k_last_7_days,"<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
       "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
@@ -122,6 +124,7 @@ shinyServer(function(session, input, output) {
     # labels of test positivity
     labels_tests <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
       "Test Positivity Rate Last 7 Days:", data_filtered$test_positivity_rate_last_7_d,"<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
       "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
@@ -130,6 +133,7 @@ shinyServer(function(session, input, output) {
     # labels of hospitalization
     labels_hospitalizations <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
       "Hospitalizations per 100k Last 7 Days:", data_filtered$conf_covid_admit_100k_last_7,"<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
       "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
@@ -138,6 +142,7 @@ shinyServer(function(session, input, output) {
     # labels of deaths
     labels_deaths <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
       "Deaths per 100k Last 7 Days:", data_filtered$Deaths_per_100k_last_7_days,"<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
       "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
@@ -146,6 +151,7 @@ shinyServer(function(session, input, output) {
     # labels of vaccine hesitancy
     labels_hesitancy <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
       "COVID-19 Vaccine Hesitancy Percentage:", data_filtered$estimated_hesitant,"<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
       "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
@@ -154,6 +160,7 @@ shinyServer(function(session, input, output) {
     # labels of SVI
     labels_svi <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
       "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
     ) %>% lapply(htmltools::HTML)
@@ -161,6 +168,7 @@ shinyServer(function(session, input, output) {
     # labels of COVID-19 Vaccine Coverage Index
     labels_cvac <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
+      "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
       "COVID-19 Vaccine Coverage Index: ", data_filtered$ability_to_handle_a_covid,"<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
       "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,"<br/>"
@@ -885,7 +893,7 @@ shinyServer(function(session, input, output) {
                          data_filtered[[input$xvariable]], 
                          use="complete.obs") %>% round(3)
       
-      HTML(paste0("<b>Correlation between ", 
+      HTML(paste0("<b>Correlation Between ", 
                   names(switch_labels[which(switch_labels == input$yvariable)]), 
                   " and ", 
                   names(switch_labels[which(switch_labels == input$xvariable)]), 
@@ -895,12 +903,17 @@ shinyServer(function(session, input, output) {
     })
     
     output$yboxplot_title <- renderPrint({
-      HTML(paste0("<b>", names(switch_labels[which(switch_labels == input$yvariable)]),"<b>"))
+      HTML(paste0("<b>", names(switch_labels[which(switch_labels == input$yvariable)])," Data Distribution</b>"))
     })
     
     output$xboxplot_title <- renderPrint({
-      HTML(paste0("<b>", names(switch_labels[which(switch_labels == input$xvariable)]),"<b>"))
+      HTML(paste0("<b>", names(switch_labels[which(switch_labels == input$xvariable)])," Data Distribution</b>"))
     })
+    
+    
+    black.bold.plain.14.text<- element_text(color = "black", face = "bold", size=14)
+    black.bold.plain.11.text<- element_text(color = "black", face = "bold", size=11)
+    white.bold.plain.14.text<- element_text(color = "white", face = "bold", size=14)
     
     # Scatter plot
     data_filtered <- data_filtered %>% 
@@ -916,32 +929,74 @@ shinyServer(function(session, input, output) {
         ggplot(aes_string(x = input$xvariable, y = input$yvariable, color = input$hue)) +
         geom_point(aes(size= POPULATION), alpha = 0.5)+
         geom_smooth(method = lm, formula = my.formula)+
-        theme_bw()+ # remove the background
-        theme(legend.position="bottom")+ 
+        theme_bw()+
+        theme(axis.text = black.bold.plain.14.text,
+              axis.title = black.bold.plain.14.text,
+              legend.position="bottom",
+              legend.box = "vertical",
+              legend.title=black.bold.plain.11.text,
+              legend.text = black.bold.plain.11.text,
+              strip.text = white.bold.plain.14.text,
+              strip.background = element_rect(fill = "#2596be"))+ 
         scale_size_continuous(labels= comma, name = "Population")
       
       p+ facet_grid(reformulate(input$hue))+
         labs(x=names(switch_labels[which(switch_labels == input$xvariable)]),
              y=names(switch_labels[which(switch_labels == input$yvariable)]),
              col=names(hue_labels[which(hue_labels == input$hue)])
-        )
+        )+
+        scale_y_continuous(labels = comma)+
+        scale_x_continuous(labels = comma)
       
     })
     
+    # Correlation heatmap
     
-    # boxplot of y axis
-    
-    output$yboxplot <-renderPlotly({
-      data_filtered %>% 
-        ggplot(aes_string(x=input$hue,y=input$yvariable, fill = input$hue))+
-        geom_boxplot()+
-        theme_bw()+
-        theme(legend.position  = "none")+ # remove figure legend
-        labs(x=names(hue_labels[which(hue_labels == input$hue)]),
-             y=names(switch_labels[which(switch_labels == input$yvariable)]))+ 
-        coord_flip() # flip to horizontal boxplot
+    output$corr_heatmap <- renderPlot({
+      
+      p.mat = as_tibble(data_filtered) %>% 
+        select(Cases_per_100k_last_7_days,
+               test_positivity_rate_last_7_d,
+               conf_covid_admit_100k_last_7,
+               pct_icu_covid,
+               pct_vent_covid,
+               Deaths_per_100k_last_7_days,
+               administered_dose1_pop_pct,
+               series_complete_pop_pct,
+               booster_doses_pop_pct,
+               estimated_hesitant,
+               social_vulnerability_index,
+               ability_to_handle_a_covid) %>% 
+        drop_na() %>% 
+        cor_pmat()
+      
+      as_tibble(data_filtered) %>% 
+        select(Cases_per_100k_last_7_days,
+               test_positivity_rate_last_7_d,
+               conf_covid_admit_100k_last_7,
+               pct_icu_covid,
+               pct_vent_covid,
+               Deaths_per_100k_last_7_days,
+               administered_dose1_pop_pct,
+               series_complete_pop_pct,
+               booster_doses_pop_pct,
+               estimated_hesitant,
+               social_vulnerability_index,
+               ability_to_handle_a_covid) %>% 
+        drop_na() %>% 
+        cor() %>% 
+        ggcorrplot(title = "Correlation Between Variables",
+                   legend.title = "Correlation",
+                   lab=T, type = "lower", hc.order = T, p.mat=p.mat, insig = "blank")+
+        scale_x_discrete(labels=labels_corr)+
+        scale_y_discrete(labels=labels_corr)+
+        theme(text = element_text(size = 18),
+              axis.text = black.bold.plain.18.text)
+      
+      
+
     })
-    
+  
     #boxplot of x axis
     
     output$xboxplot <-renderPlotly({
@@ -949,11 +1004,26 @@ shinyServer(function(session, input, output) {
         ggplot(aes_string(x=input$hue,y=input$xvariable, fill = input$hue))+
         geom_boxplot()+
         theme_bw()+
-        theme(legend.position  = "none")+ # remove figure legend
+        theme(legend.position  = "none")+ 
         labs(x=names(hue_labels[which(hue_labels == input$hue)]),
              y=names(switch_labels[which(switch_labels == input$xvariable)]))+ 
-        coord_flip() # flip to horizontal boxplot
+        coord_flip()+
+        scale_y_continuous(labels = comma)
     })
+    
+    # Barchart of population
+    output$popbar <- renderPlotly({
+      data_filtered %>% 
+        ggplot(aes_string(x=input$hue,y="POPULATION", fill = input$hue))+
+        geom_bar(stat = "summary", fun.y="median")+
+        theme_bw()+
+        theme(legend.position  = "none")+
+        labs(x=names(hue_labels[which(hue_labels == input$hue)]),
+             y="Population")+
+        coord_flip()+
+        scale_y_continuous(labels = comma)
+    })
+    
     
     #TABLE TAB
     
@@ -977,14 +1047,15 @@ shinyServer(function(session, input, output) {
     output$download_customized_datatable <- downloadHandler(
       filename = function(){'us_county_covid_customized.csv'},
       content = function(fname) {
-        write.csv(as_tibble(data_filtered)[, input$table_columns_selected], fname)
+        # write_csv(as_tibble(data_filtered)[, input$table_columns_selected], fname)
+        write_csv(as_tibble(st_set_geometry(data_filtered, NULL))[, input$table_columns_selected], fname)
       }
     )
     
     output$download_full_datatable <- downloadHandler(
       filename = function(){'us_county_covid.csv'},
       content = function(fname) {
-        write.csv(as_tibble(us_county_covid %>% select(-geometry)), fname)
+        write_csv(as_tibble(st_set_geometry(us_county_covid, NULL))[,], fname)
       }
     )
     

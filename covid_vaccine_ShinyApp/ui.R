@@ -78,7 +78,8 @@ shinyUI(
           selectInput(
             inputId = "yvariable",
             label = "Select a Variable For The Y-axis",
-            choices = choices_yvariable
+            choices = choices_yvariable,
+            selected  = "test_positivity_rate_last_7_d"
           ),
           selectInput(
             inputId = "hue",
@@ -119,7 +120,7 @@ shinyUI(
         ),
         numericRangeInput(
           inputId = "population",
-          label = "Enter the Population",
+          label = "Filter Counties by Population",
           min = min_pop,
           max = max_pop,
           value = c(min_pop,max_pop),
@@ -146,31 +147,43 @@ shinyUI(
           tabName = "analysis",
           h1("Analysis of Current COVID-19 Data in The U.S. by County"),
           fluidRow(
-            column(
-              width = 12,
-              box(
-                title = uiOutput("scatter_title"), width = NULL, status = "primary",solidHeader = T,
-                plotOutput("scatter") %>% withSpinner(color="#0dc5c1")
-              )
+            tabBox(
+              title = "Data Analysis",
+              id = "tabset_analysis", height = "1500px", width = 12,
               
-            )
-          ),
-          fluidRow(
-            column(
-              width = 6,
-              box(
-                title = uiOutput("yboxplot_title"), width = NULL, status = "primary",solidHeader = T,
-                plotlyOutput("yboxplot") %>% withSpinner(color="#0dc5c1")
+              tabPanel("Correlation", 
+                       fluidRow(
+                         width=12,
+                         box(
+                           title = uiOutput("scatter_title"), width = 12, height = 1270, status = "primary", solidHeader = T,
+                           plotOutput("scatter") %>% withSpinner(color="#0dc5c1"),
+                           plotOutput("corr_heatmap", width = 800, height = 800)%>% withSpinner(color="#0dc5c1")
+                           
+                         )
+                       )
+              ),
+              tabPanel("Inequality", 
+                       fluidRow(
+                         column(
+                           width = 6,
+                           box(
+                             title = uiOutput("xboxplot_title"), width = NULL, status = "primary",solidHeader = T,
+                             plotlyOutput("xboxplot") %>% withSpinner(color="#0dc5c1")
+                           )
+                         ),
+                         column(
+                           width = 6,
+                           box(
+                             title = "Median Population", width = NULL, status = "primary",solidHeader = T,
+                             plotlyOutput("popbar") %>% withSpinner(color="#0dc5c1")
+                           )
+                         )
+                       )
+              ),
+              tabPanel("State", "State analysis"),
+              tabPanel("County", "County analysis")
               )
-            ),
-            column(
-              width = 6,
-              box(
-                title = uiOutput("xboxplot_title"), width = NULL, status = "primary",solidHeader = T,
-                plotlyOutput("xboxplot") %>% withSpinner(color="#0dc5c1")
-              )
             )
-          )
         ),
         
         # Table tab
@@ -180,7 +193,6 @@ shinyUI(
           tabBox(
             title = "Data Table for Download",
             width = 12,
-            # The id lets us use input$tabset_datatable on the server to find the current tab
             id = "tabset_datatable",
             tabPanel("Customized", 
                      downloadButton('download_customized_datatable', 'Download'),
