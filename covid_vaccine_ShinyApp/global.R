@@ -21,6 +21,7 @@ library(scales)
 library(shinycssloaders)
 library(ggcorrplot)
 library(repr)
+library(rlang)
 
 
  
@@ -136,6 +137,10 @@ choices_state <- c("United States", us_county_covid %>%
                      pull(STATE_NAME) %>%
                      unique() %>%
                      sort())
+choices_state_rank <- us_county_covid %>%
+  pull(STATE_NAME) %>%
+  unique() %>%
+  sort()
 choices_metro <- c("Metro" , "Non-metro")
 
 switch_labels <- c("Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days",
@@ -196,4 +201,7 @@ initial_lng = -98.5795
 initial_zoom = 4
 
 # element_text()
-black.bold.plain.18.text<- element_text(color = "black", face = "bold", size="18" )
+black.bold.plain.11.text<- element_text(color = "black", face = "bold", size=11)
+black.bold.plain.14.text<- element_text(color = "black", face = "bold", size=14)
+black.bold.plain.18.text<- element_text(color = "black", face = "bold", size=18 )
+white.bold.plain.14.text<- element_text(color = "white", face = "bold", size=14)

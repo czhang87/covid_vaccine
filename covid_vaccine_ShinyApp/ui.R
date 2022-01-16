@@ -37,9 +37,12 @@ shinyUI(
         ),
         
         # Reset input button
-        actionBttn(
-          inputId = "reset_input",
-          label = "Reset Input"),
+        conditionalPanel(
+          condition = "input.tabs!='about'",
+          actionBttn(
+            inputId = "reset_input",
+            label = "Reset Input")
+        ),
         
         # conditional panel of map tab
         conditionalPanel(
@@ -68,24 +71,32 @@ shinyUI(
         
         # conditional panel for analysis
         conditionalPanel(
-          condition = "input.tabs == 'analysis'",
-          
+          condition = "input.tabs=='analysis' && input.tabset_analysis == 'Correlation'",
           selectInput(
             inputId = "xvariable",
             label = "Select a Variable For The X-axis",
-            choices = choices_xvariable
-          ),
+            choices = choices_xvariable),
           selectInput(
             inputId = "yvariable",
             label = "Select a Variable For The Y-axis",
             choices = choices_yvariable,
-            selected  = "test_positivity_rate_last_7_d"
+            selected  = "test_positivity_rate_last_7_d")
+        ),
+        
+        conditionalPanel(
+          condition = "input.tabs=='analysis'&& (input.tabset_analysis == 'Inequality'||input.tabset_analysis == 'Rank')",
+          selectInput(
+            inputId = "selected_variable",
+            label = "Select a Variable",
+            choices = choices_xvariable)
           ),
+        
+        conditionalPanel(
+          condition = "input.tabs=='analysis'&&(input.tabset_analysis == 'Correlation'||input.tabset_analysis == 'Inequality')",
           selectInput(
             inputId = "hue",
             label = "Select a Comparison Category",
-            choices = hue_labels
-          )
+            choices = hue_labels)
         ),
         
         # conditional panel of table
@@ -103,28 +114,45 @@ shinyUI(
           )
         ),
         
-        # panel for all tabs
-        selectInput(
-          inputId = "state",
-          label = "Select or Type in One or Multiple states",
-          choices = choices_state,
-          selected = "United States",
-          multiple = T
+        # Conditional panel except About tab
+        conditionalPanel(
+          condition = "input.tabs != 'about'&&input.tabset_analysis!='Rank'",
+            selectInput(
+              inputId = "state",
+              label = "Select or Type in One or Multiple states",
+              choices = choices_state,
+              selected = "United States",
+              multiple = T)
         ),
         
-        checkboxGroupInput(
-          inputId = "metro",
-          label = "Select the Metropolitan Status",
-          choices = choices_metro,
-          selected = choices_metro
+        # Conditional panel for Rank
+        conditionalPanel(
+          condition = "input.tabs=='analysis'&&input.tabset_analysis == 'Rank'",
+          selectInput(
+            inputId = "state_rank",
+            label = "Select or Type in One State",
+            choices = choices_state_rank),
+          selectInput(
+            inputId = "county",
+            label = "Select a County",
+            choices = NULL)
         ),
-        numericRangeInput(
-          inputId = "population",
-          label = "Filter Counties by Population",
-          min = min_pop,
-          max = max_pop,
-          value = c(min_pop,max_pop),
-          step = 5000
+        
+        # Conditional panel except About tab
+        conditionalPanel(
+          condition = "input.tabs != 'about'",
+          checkboxGroupInput(
+            inputId = "metro",
+            label = "Select the Metropolitan Status",
+            choices = choices_metro,
+            selected = choices_metro),
+          numericRangeInput(
+            inputId = "population",
+            label = "Filter Counties by Population",
+            min = min_pop,
+            max = max_pop,
+            value = c(min_pop,max_pop),
+            step = 5000)
         )
       )
     ),
@@ -168,20 +196,19 @@ shinyUI(
                            width = 6,
                            box(
                              title = uiOutput("xboxplot_title"), width = NULL, status = "primary",solidHeader = T,
-                             plotlyOutput("xboxplot") %>% withSpinner(color="#0dc5c1")
+                             plotOutput("xbar") %>% withSpinner(color="#0dc5c1")
                            )
                          ),
                          column(
                            width = 6,
                            box(
                              title = "Median Population", width = NULL, status = "primary",solidHeader = T,
-                             plotlyOutput("popbar") %>% withSpinner(color="#0dc5c1")
+                             plotOutput("popbar") %>% withSpinner(color="#0dc5c1")
                            )
                          )
                        )
               ),
-              tabPanel("State", "State analysis"),
-              tabPanel("County", "County analysis")
+              tabPanel("Rank", "Rank analysis")
               )
             )
         ),
