@@ -3,11 +3,11 @@
 # Define server logic required to draw a histogram
 shinyServer(function(session, input, output) {
   
-  # update the county drop down menu based on the selection of the state drop down menu
-  observe({
-    updateSelectInput(session, "county",
-                      choices = us_county_covid[us_county_covid$STATE_NAME == input$state_rank,]$NAME)
-  })
+  # # update the county drop down menu based on the selection of the state drop down menu
+  # observe({
+  #   updateSelectInput(session, "county",
+  #                     choices = us_county_covid[us_county_covid$STATE_NAME == input$state_rank,]$NAME)
+  # })
   
   # Reset Input Button
   observeEvent(input$reset_input, {
@@ -16,11 +16,14 @@ shinyServer(function(session, input, output) {
     updateRadioButtons(session, "vaccination_status", choices = choices_vaccination_status)
     updateSelectInput(session, "xvariable", choices = choices_xvariable)
     updateSelectInput(session, "yvariable",choices = choices_yvariable, selected = "test_positivity_rate_last_7_d")
+    updateSelectInput(session, "selected_variable",choices = choices_yvariable)
+    updateSelectInput(session, "mean_median", choices = c("Mean", "Median"))
     updateSelectInput(session, "hue", choices = hue_labels)
     updatePickerInput(session, "table_columns_selected", selected = table_columns, choices = table_columns,
                       choicesOpt = list(
                         style = rep(("color: black; background: white;"),20)))
     updateSelectInput(session, "state", selected = "United States", choices = choices_state)
+    updateSelectInput(session, "state_rank", choices = choices_state_rank)
     updateCheckboxGroupInput(session, "metro", selected = choices_metro, choices = choices_metro)
     updateNumericRangeInput(session, "population", value = c(min_pop,max_pop))
     
@@ -42,14 +45,17 @@ shinyServer(function(session, input, output) {
     leafletProxy("map") %>% setView(lat = initial_lat, lng = initial_lng, zoom = initial_zoom)
   })
   
-  
+  # Reactive components
   observe({
     
-    # Choropleth based on data types using leafletProxy in observe({})
     # filter data based on metro status
     data_filtered <- us_county_covid %>%
       filter(metro_status %in% input$metro) %>% 
       filter(between(POPULATION, input$population[1], input$population[2]))
+    
+    # update the county drop down menu based on the selection of the state drop down menu
+    updateSelectInput(session, "county",
+                      choices = data_filtered[data_filtered$STATE_NAME == input$state_rank,]$NAME)
     
     # filter data based on state
     if("United States" %in% input$state){
@@ -886,25 +892,21 @@ shinyServer(function(session, input, output) {
     # ANALYSIS TAB
     
     # Plot titles and labels
-    output$scatter_title <- renderPrint({
-      
-      correlation <- cor(data_filtered[[input$yvariable]], 
-                         data_filtered[[input$xvariable]], 
-                         use="complete.obs") %>% round(3)
-      
-      HTML(paste0("<b>Correlation Between ", 
-                  names(switch_labels[which(switch_labels == input$yvariable)]), 
-                  " and ", 
-                  names(switch_labels[which(switch_labels == input$xvariable)]), 
-                  ": ", 
-                  correlation,
-                  "</b> "))
-    })
-    
-    label_xvar<-HTML(paste0(names(switch_labels[which(switch_labels == input$xvariable)])))
-    label_yvar<-HTML(paste0(names(switch_labels[which(switch_labels == input$yvariable)])))
-    label_selected_var <- HTML(paste0(names(switch_labels[which(switch_labels == input$selected_variable)])))
+    label_xvar<-names(switch_labels[which(switch_labels == input$xvariable)])
+    label_yvar<-names(switch_labels[which(switch_labels == input$yvariable)])
+    label_selected_var <- names(switch_labels[which(switch_labels == input$selected_variable)])
     label_category <- names(hue_labels[which(hue_labels == input$hue)])
+    
+    correlation <-cor(data_filtered[[input$yvariable]],
+                      data_filtered[[input$xvariable]],
+                      use="complete.obs") %>% round(3)
+    
+    title_scatter<-paste0("Correlation Between ", 
+                          label_xvar, 
+                          " and ", 
+                          label_yvar, 
+                          ": ", 
+                          correlation)
     
     # Filter data
     data_filtered <- data_filtered %>% 
@@ -920,7 +922,8 @@ shinyServer(function(session, input, output) {
       geom_point(aes(size= POPULATION), alpha = 0.5)+
       geom_smooth(method = lm, formula = y~x)+
       theme_bw()+
-      theme(axis.text = black.bold.plain.11.text,
+      theme(plot.title = black.bold.plain.18.text,
+            axis.text = black.bold.plain.11.text,
             axis.title = black.bold.plain.14.text,
             legend.position="bottom",
             legend.box = "vertical",
@@ -930,7 +933,8 @@ shinyServer(function(session, input, output) {
             strip.background = element_rect(fill = "#2596be"))+ 
       scale_size_continuous(labels= comma, name = "Population")+
       facet_grid(reformulate(input$hue))+
-      labs(x=label_xvar,
+      labs(title = title_scatter,
+           x=label_xvar,
            y=label_yvar,
            col=label_category
       )+
@@ -978,8 +982,12 @@ shinyServer(function(session, input, output) {
                  lab=T, type = "lower", hc.order = T, p.mat=p.mat, insig = "blank")+
       scale_x_discrete(labels=labels_corr)+
       scale_y_discrete(labels=labels_corr)+
-      theme(text = element_text(size = 18),
-            axis.text = black.bold.plain.18.text)
+      theme(plot.title = black.bold.plain.18.text,
+            plot.margin = unit(c(0, 0, 0, 0), "null"),
+            text = element_text(size = 18),
+            axis.text = black.bold.plain.18.text
+            
+      )
     
     output$corr_heatmap <- renderPlot({
       corr_heatmap
@@ -1073,6 +1081,19 @@ shinyServer(function(session, input, output) {
     })
     
     # Value boxes-----------------------------------------
+    rank_county_selected <- data_filtered[data_filtered$STATE_NAME==input$state_rank&data_filtered$NAME==input$county,]
+    output$title_value_box <- renderPrint({
+      HTML(
+        paste0(
+          "<strong>",input$county,", ", input$state_rank, "</strong>        ",
+          "Population:", format(rank_county_selected$POPULATION, big.mark = ",", scientific = F), "      ",
+          rank_county_selected$metro_status, " County"
+        )
+      )
+    })
+    
+    
+    
     output$box_case <- renderValueBox({
       valueBox(
         paste0(data_filtered %>% 
@@ -1255,7 +1276,8 @@ shinyServer(function(session, input, output) {
               axis.title = black.bold.plain.18.text)+
         labs(title = paste0(label_selected_var," by State"),
              x="",
-             y=names(switch_labels[which(switch_labels == input$selected_variable)]))+
+             y=paste0(label_selected_var, " (Mean)")
+        )+
         coord_flip()+
         scale_y_continuous(sec.axis = sec_axis(~ ., labels = comma),labels = comma )
     }
@@ -1272,9 +1294,10 @@ shinyServer(function(session, input, output) {
               axis.title = black.bold.plain.18.text)+
         labs(title = paste0(label_selected_var," by State"),
              x="",
-             y=names(switch_labels[which(switch_labels == input$selected_variable)]))+
+             y=paste0(label_selected_var, " (Median)")
+        )+
         coord_flip()+
-        scale_y_continuous(labels = comma)
+        scale_y_continuous(sec.axis = sec_axis(~ ., labels = comma),labels = comma)
     }
     
     output$rank_state <- renderPlot({
@@ -1298,6 +1321,7 @@ shinyServer(function(session, input, output) {
            y=label_selected_var)+
       coord_flip()+
       scale_y_continuous(sec.axis = sec_axis(~ ., labels = comma),labels = comma )
+    
     output$rank_county <- renderPlot({
       rank_county
     })
@@ -1309,6 +1333,7 @@ shinyServer(function(session, input, output) {
       as_tibble(data_filtered)[, input$table_columns_selected],
       options = list(
         pageLength=10, scrollX='400px'),
+      rownames=FALSE,
       filter = 'top'
     )
     
@@ -1317,24 +1342,42 @@ shinyServer(function(session, input, output) {
       as_tibble(us_county_covid),
       options = list(
         pageLength=10, scrollX='400px'),
+      rownames=FALSE,
       filter = 'top'
     )
     
     # Download buttons
-    output$download_customized_datatable <- downloadHandler(
-      filename = function(){'us_county_covid_customized.csv'},
-      content = function(fname) {
-        write_csv(as_tibble(st_set_geometry(data_filtered, NULL))[, input$table_columns_selected], fname)
-      }
-    )
+    download_table_csv <- function(exportname, table) {
+      downloadHandler(
+        filename = function() {
+          paste(exportname, Sys.Date(), ".csv", sep = "")
+        },
+        content = function(file) {
+          write_csv(table, file)
+        }
+      )
+    }
     
-    output$download_full_datatable <- downloadHandler(
-      filename = function(){'us_county_covid.csv'},
-      content = function(fname) {
-        write_csv(as_tibble(st_set_geometry(us_county_covid, NULL))[,], fname)
-      }
-    )
+    download_table_xlsx <- function(exportname, table) {
+      downloadHandler(
+        filename = function() {
+          paste(exportname, Sys.Date(), ".xlsx", sep = "")
+        },
+        content = function(file) {
+          write.xlsx2(table, file)
+        }
+      )
+    }  
     
+    output$download_customized_datatable_csv <- download_table_csv("us_county_covid_customized",
+                                                                   as_tibble(st_set_geometry(data_filtered, NULL))[, input$table_columns_selected])
+    output$download_full_datatable_csv <- download_table_csv("us_county_covid",
+                                                                   as_tibble(st_set_geometry(data_filtered, NULL))[,])
+    output$download_customized_datatable_xlsx <- download_table_xlsx("us_county_covid_customized",
+                                                                   as_tibble(st_set_geometry(data_filtered, NULL))[, input$table_columns_selected])
+    output$download_full_datatable_xlsx <- download_table_xlsx("us_county_covid",
+                                                             as_tibble(st_set_geometry(data_filtered, NULL))[,])
+  
     download_plot <- function(exportname, plot) {
       downloadHandler(
         filename = function() {

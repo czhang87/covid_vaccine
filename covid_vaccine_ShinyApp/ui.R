@@ -92,7 +92,8 @@ shinyUI(
           selectInput(
             inputId = "mean_median",
             label = "Select Mean or Median for Data Aggreggation",
-            choices = c("Mean", "Median"))
+            choices = c("Mean", "Median")
+          )
           ),
         
         conditionalPanel(
@@ -105,7 +106,7 @@ shinyUI(
         
         # conditional panel of table
         conditionalPanel(
-          condition = "input.tabs == 'table'",
+          condition = "input.tabs == 'table'&&input.tabset_datatable=='Customized'",
           pickerInput(
             inputId = "table_columns_selected",
             label = "Select Table Columns",
@@ -120,7 +121,7 @@ shinyUI(
         
         # Conditional panel except About tab
         conditionalPanel(
-          condition = "input.tabs != 'about'&&input.tabset_analysis!='Rank'",
+          condition = "input.tabs != 'about'&&!(input.tabs == 'analysis'&&input.tabset_analysis=='Rank')",
             selectInput(
               inputId = "state",
               label = "Select or Type in One or Multiple states",
@@ -184,7 +185,7 @@ shinyUI(
               
               tabPanel("Correlation", 
                          div(
-                           style = "position: absolute; left: 4em; bottom: 10em;",
+                           style = "position: absolute; left: 4em; top: 4em;",
                            dropdown(
                              downloadButton(outputId = "download_scatter", label = "Download Plot"),
                              size = "xs",
@@ -192,11 +193,13 @@ shinyUI(
                              up = TRUE
                            )
                          ),
+                       br(),
+                       br(),
                          plotOutput("scatter") %>% withSpinner(color="#0dc5c1"),
                        br(),
                        br(),
                        div(
-                         style = "position: absolute; left: 4em; bottom: -50em;",
+                         style = "position: absolute; left: 4em; top: 36em;",
                          dropdown(
                            downloadButton(outputId = "download_corr_heatmap", label = "Download Plot"),
                            size = "xs",
@@ -208,36 +211,40 @@ shinyUI(
                        
               ),
               tabPanel("Inequality",
-                       
-                         column(
+                       div(
+                         style = "position: absolute; left: 4em; top: 4em;",
+                         dropdown(
+                           downloadButton(outputId = "download_inequality_bar", label = "Download Plot"),
+                           size = "xs",
+                           icon = icon("download", class = "opt"), 
+                           up = TRUE
+                         )
+                       ),
+                       div(
+                         style = "position: absolute; left: 37em; top: 4em;",
+                         dropdown(
+                           downloadButton(outputId = "download_popbar", label = "Download Plot"),
+                           size = "xs",
+                           icon = icon("download", class = "opt"), 
+                           up = TRUE
+                         )
+                       ),
+                       column(
                            width = 6,
-                           div(
-                             style = "position: absolute; left: 4em; bottom: -2em;",
-                             dropdown(
-                               downloadButton(outputId = "download_inequality_bar", label = "Download Plot"),
-                               size = "xs",
-                               icon = icon("download", class = "opt"), 
-                               up = TRUE
-                             )
-                           ),
+                           br(),
+                           br(),
                            plotOutput("inequality_bar") %>% withSpinner(color="#0dc5c1")
                          ),
                          column(
                            width = 6,
-                           div(
-                             style = "position: absolute; left: 10em; bottom: -2em;",
-                             dropdown(
-                               downloadButton(outputId = "download_popbar", label = "Download Plot"),
-                               size = "xs",
-                               icon = icon("download", class = "opt"), 
-                               up = TRUE
-                             )
-                           ),
+                           br(),
+                           br(),
                            plotOutput("popbar") %>% withSpinner(color="#0dc5c1")
                          )
                        
               ),
               tabPanel("Rank",
+                       h2(uiOutput("title_value_box")),
                        fluidRow(
                          valueBoxOutput("box_case",3),
                          valueBoxOutput("box_test",3),
@@ -261,9 +268,23 @@ shinyUI(
                          valueBoxOutput("box_cvac",width = 6)),
                        fluidRow(
                          tabBox(
-                           title = "State and County Rank",
+                           title = "County and State Rank",
                            id="rank_state_county",
                            width = 12,
+                           tabPanel("County",
+                                    div(
+                                      style = "position: absolute; left: 4em; top: 4em;",
+                                      dropdown(
+                                        downloadButton(outputId = "download_rank_county", label = "Download Plot"),
+                                        size = "xs",
+                                        icon = icon("download", class = "opt"), 
+                                        up = TRUE
+                                      )
+                                    ),
+                                    br(),
+                                    br(),
+                                    plotOutput("rank_county", width = 900, height = 1200) %>% withSpinner(color="#0dc5c1")
+                           ),
                            tabPanel("State",
                                     div(
                                       style = "position: absolute; left: 4em; top: 4em;",
@@ -277,20 +298,6 @@ shinyUI(
                                     br(),
                                     br(),
                                     plotOutput("rank_state", width = 900, height = 800) %>% withSpinner(color="#0dc5c1")
-                           ),
-                           tabPanel("County",
-                                    div(
-                                      style = "position: absolute; left: 4em; top: 4em;",
-                                      dropdown(
-                                        downloadButton(outputId = "download_rank_county", label = "Download Plot"),
-                                        size = "xs",
-                                        icon = icon("download", class = "opt"), 
-                                        up = TRUE
-                                      )
-                                    ),
-                                    br(),
-                                    br(),
-                                    plotOutput("rank_county", width = 900, height = 1000) %>% withSpinner(color="#0dc5c1")
                            )
                          )
                        )
@@ -304,15 +311,23 @@ shinyUI(
           tabName = "table",
           
           tabBox(
-            title = "Data Table for Download",
+            title = "Data Table for Analysis and Download",
             width = 12,
             id = "tabset_datatable",
             tabPanel("Customized", 
-                     downloadButton('download_customized_datatable', 'Download'),
+                     downloadButton('download_customized_datatable_csv', 'CSV'),
+                     downloadButton('download_customized_datatable_xlsx', 'Excel'),
+                     br(),
+                     br(),
+                     br(),
                      dataTableOutput("datatable_customized") %>% withSpinner(color="#0dc5c1")
             ),
             tabPanel("Full", 
-                     downloadButton('download_full_datatable', 'Download'),
+                     downloadButton('download_full_datatable_csv', 'CSV'),
+                     downloadButton('download_full_datatable_xlsx', 'Excel'),
+                     br(),
+                     br(),
+                     br(),
                      dataTableOutput("datatable_full") %>% withSpinner(color="#0dc5c1")
             )
           )

@@ -22,11 +22,13 @@ library(shinycssloaders)
 library(ggcorrplot)
 library(repr)
 library(rlang)
+library(xlsx)
+# library(curly)
 
 
  
 # # set working directory
-setwd("~/Documents/Data Science/bootcamp/NSS/DS5/nss_projects/covid_vaccine/covid_vaccine_ShinyApp")
+# setwd("~/Documents/Data Science/bootcamp/NSS/DS5/nss_projects/covid_vaccine/covid_vaccine_ShinyApp")
 
 # #####################################################################################################
 # # Geospatial data with demographic info
