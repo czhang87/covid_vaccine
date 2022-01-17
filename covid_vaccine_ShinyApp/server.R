@@ -14,7 +14,6 @@ shinyServer(function(session, input, output) {
     
     updateSelectInput(session, "data_type", choices = choices_data_type)
     updateRadioButtons(session, "vaccination_status", choices = choices_vaccination_status)
-    updateSelectInput(session, "data_type", choices = choices_data_type)
     updateSelectInput(session, "xvariable", choices = choices_xvariable)
     updateSelectInput(session, "yvariable",choices = choices_yvariable, selected = "test_positivity_rate_last_7_d")
     updateSelectInput(session, "hue", choices = hue_labels)
@@ -194,7 +193,7 @@ shinyServer(function(session, input, output) {
     bins_svi <- c(0, 0.25, 0.5, 0.75, 1)
     bins_cvac <- c(0, 0.25, 0.5, 0.75, 1)
     
-    # data types
+    # Data types
     
     # Vaccination
     if ( input$data_type == "Vaccination Percentage"){
@@ -886,7 +885,7 @@ shinyServer(function(session, input, output) {
     
     # ANALYSIS TAB
     
-    # reactive labels for boxes
+    # Plot titles and labels
     output$scatter_title <- renderPrint({
       
       correlation <- cor(data_filtered[[input$yvariable]], 
@@ -902,122 +901,154 @@ shinyServer(function(session, input, output) {
                   "</b> "))
     })
     
-    output$yboxplot_title <- renderPrint({
-      HTML(paste0("<b>", names(switch_labels[which(switch_labels == input$yvariable)])," Data Distribution</b>"))
-    })
+    label_xvar<-HTML(paste0(names(switch_labels[which(switch_labels == input$xvariable)])))
+    label_yvar<-HTML(paste0(names(switch_labels[which(switch_labels == input$yvariable)])))
+    label_selected_var <- HTML(paste0(names(switch_labels[which(switch_labels == input$selected_variable)])))
+    label_category <- names(hue_labels[which(hue_labels == input$hue)])
     
-    output$xboxplot_title <- renderPrint({
-      HTML(paste0(names(switch_labels[which(switch_labels == input$xvariable)])))
-    })
-    
-    
-    black.bold.plain.14.text<- element_text(color = "black", face = "bold", size=14)
-    black.bold.plain.11.text<- element_text(color = "black", face = "bold", size=11)
-    white.bold.plain.14.text<- element_text(color = "white", face = "bold", size=14)
-    
-    # Scatter plot
+    # Filter data
     data_filtered <- data_filtered %>% 
       filter(administered_dose1_pop_pct>0,
              series_complete_pop_pct>0,
              booster_doses_pop_pct>0,
              !(is.na(svi_category))
       )
-      
-    my.formula <- y~x
+    
+    # Scatter plot
+    scatter <-  data_filtered %>% 
+      ggplot(aes_string(x = input$xvariable, y = input$yvariable, color = input$hue)) +
+      geom_point(aes(size= POPULATION), alpha = 0.5)+
+      geom_smooth(method = lm, formula = y~x)+
+      theme_bw()+
+      theme(axis.text = black.bold.plain.11.text,
+            axis.title = black.bold.plain.14.text,
+            legend.position="bottom",
+            legend.box = "vertical",
+            legend.title=black.bold.plain.11.text,
+            legend.text = black.bold.plain.11.text,
+            strip.text = white.bold.plain.14.text,
+            strip.background = element_rect(fill = "#2596be"))+ 
+      scale_size_continuous(labels= comma, name = "Population")+
+      facet_grid(reformulate(input$hue))+
+      labs(x=label_xvar,
+           y=label_yvar,
+           col=label_category
+      )+
+      scale_y_continuous(labels = comma)+
+      scale_x_continuous(labels = comma)
+    
     output$scatter <- renderPlot({
-      p <- data_filtered %>% 
-        ggplot(aes_string(x = input$xvariable, y = input$yvariable, color = input$hue)) +
-        geom_point(aes(size= POPULATION), alpha = 0.5)+
-        geom_smooth(method = lm, formula = my.formula)+
-        theme_bw()+
-        theme(axis.text = black.bold.plain.14.text,
-              axis.title = black.bold.plain.14.text,
-              legend.position="bottom",
-              legend.box = "vertical",
-              legend.title=black.bold.plain.11.text,
-              legend.text = black.bold.plain.11.text,
-              strip.text = white.bold.plain.14.text,
-              strip.background = element_rect(fill = "#2596be"))+ 
-        scale_size_continuous(labels= comma, name = "Population")
-      
-      p+ facet_grid(reformulate(input$hue))+
-        labs(x=names(switch_labels[which(switch_labels == input$xvariable)]),
-             y=names(switch_labels[which(switch_labels == input$yvariable)]),
-             col=names(hue_labels[which(hue_labels == input$hue)])
-        )+
-        scale_y_continuous(labels = comma)+
-        scale_x_continuous(labels = comma)
-      
+      scatter
     })
     
-    # Correlation heatmap
+    # Correlation heat map
+    p.mat = as_tibble(data_filtered) %>% 
+      select(Cases_per_100k_last_7_days,
+             test_positivity_rate_last_7_d,
+             conf_covid_admit_100k_last_7,
+             pct_icu_covid,
+             pct_vent_covid,
+             Deaths_per_100k_last_7_days,
+             administered_dose1_pop_pct,
+             series_complete_pop_pct,
+             booster_doses_pop_pct,
+             estimated_hesitant,
+             social_vulnerability_index,
+             ability_to_handle_a_covid) %>% 
+      drop_na() %>% 
+      cor_pmat()
+    
+    corr_heatmap<- as_tibble(data_filtered) %>% 
+      select(Cases_per_100k_last_7_days,
+             test_positivity_rate_last_7_d,
+             conf_covid_admit_100k_last_7,
+             pct_icu_covid,
+             pct_vent_covid,
+             Deaths_per_100k_last_7_days,
+             administered_dose1_pop_pct,
+             series_complete_pop_pct,
+             booster_doses_pop_pct,
+             estimated_hesitant,
+             social_vulnerability_index,
+             ability_to_handle_a_covid) %>% 
+      drop_na() %>% 
+      cor() %>% 
+      ggcorrplot(title = "Correlation Between Variables",
+                 legend.title = "Correlation",
+                 lab=T, type = "lower", hc.order = T, p.mat=p.mat, insig = "blank")+
+      scale_x_discrete(labels=labels_corr)+
+      scale_y_discrete(labels=labels_corr)+
+      theme(text = element_text(size = 18),
+            axis.text = black.bold.plain.18.text)
     
     output$corr_heatmap <- renderPlot({
-      
-      p.mat = as_tibble(data_filtered) %>% 
-        select(Cases_per_100k_last_7_days,
-               test_positivity_rate_last_7_d,
-               conf_covid_admit_100k_last_7,
-               pct_icu_covid,
-               pct_vent_covid,
-               Deaths_per_100k_last_7_days,
-               administered_dose1_pop_pct,
-               series_complete_pop_pct,
-               booster_doses_pop_pct,
-               estimated_hesitant,
-               social_vulnerability_index,
-               ability_to_handle_a_covid) %>% 
-        drop_na() %>% 
-        cor_pmat()
-      
-      as_tibble(data_filtered) %>% 
-        select(Cases_per_100k_last_7_days,
-               test_positivity_rate_last_7_d,
-               conf_covid_admit_100k_last_7,
-               pct_icu_covid,
-               pct_vent_covid,
-               Deaths_per_100k_last_7_days,
-               administered_dose1_pop_pct,
-               series_complete_pop_pct,
-               booster_doses_pop_pct,
-               estimated_hesitant,
-               social_vulnerability_index,
-               ability_to_handle_a_covid) %>% 
-        drop_na() %>% 
-        cor() %>% 
-        ggcorrplot(title = "Correlation Between Variables",
-                   legend.title = "Correlation",
-                   lab=T, type = "lower", hc.order = T, p.mat=p.mat, insig = "blank")+
-        scale_x_discrete(labels=labels_corr)+
-        scale_y_discrete(labels=labels_corr)+
-        theme(text = element_text(size = 18),
-              axis.text = black.bold.plain.18.text)
-      
-      
-
+      corr_heatmap
     })
     
-    # Barchart of selected variable and hue
-    output$xbar <- renderPlot({
+    # Inequality Barchart of selected variable and hue
+    inequality_bar <-if(input$mean_median=="Mean"){
       as_tibble(data_filtered) %>%
-        # filter(!is.na(!! rlang::sym(input$hue))) %>% 
-        group_by(!! rlang::sym(input$hue)) %>% 
-        summarise(median_x = median(!! rlang::sym(input$selected_variable))) %>% 
+        group_by(!! sym(input$hue)) %>% 
+        summarise(median_x = mean(!! sym(input$selected_variable))) %>% 
         ggplot(aes_string(x=input$hue,y="median_x", fill = input$hue))+
         geom_bar(stat = "identity")+
         theme_bw()+
         theme(legend.position  = "none",
+              plot.title = black.bold.plain.18.text,
               axis.text = black.bold.plain.11.text,
-              axis.title = black.bold.plain.11.text)+
-        labs(x=names(hue_labels[which(hue_labels == input$hue)]),
-             y=names(switch_labels[which(switch_labels == input$selected_variable)]))+
+              axis.title = black.bold.plain.14.text)+
+        labs(title= label_selected_var,
+             x=label_category,
+             y=paste0(label_selected_var," (Mean)")
+        )+
         coord_flip()+
         scale_y_continuous(labels = comma)
+    }
+    else{
+      as_tibble(data_filtered) %>%
+        group_by(!! sym(input$hue)) %>% 
+        summarise(median_x = median(!! sym(input$selected_variable))) %>% 
+        ggplot(aes_string(x=input$hue,y="median_x", fill = input$hue))+
+        geom_bar(stat = "identity")+
+        theme_bw()+
+        theme(legend.position  = "none",
+              plot.title = black.bold.plain.18.text,
+              axis.text = black.bold.plain.11.text,
+              axis.title = black.bold.plain.14.text)+
+        labs(title= label_selected_var,
+             x=label_category,
+             y=paste0(label_selected_var," (Median)")
+        )+
+        coord_flip()+
+        scale_y_continuous(labels = comma)
+    }
+    
+    output$inequality_bar <- renderPlot({
+      inequality_bar
     })
     
     
     # Barchart of population
-    output$popbar <- renderPlot({
+    popbar<-if(input$mean_median=="Mean"){
+      as_tibble(data_filtered) %>%
+        filter(!is.na(!! sym(input$hue))) %>% 
+        group_by(!! sym(input$hue)) %>% 
+        summarise(median_pop = mean(POPULATION)) %>% 
+        ggplot(aes_string(x=input$hue,y="median_pop", fill = input$hue))+
+        geom_bar(stat = "identity")+
+        theme_bw()+
+        theme(legend.position  = "none",
+              plot.title = black.bold.plain.18.text,
+              axis.text = black.bold.plain.11.text,
+              axis.title = black.bold.plain.14.text)+
+        labs(title="Population",
+             x=label_category,
+             y=paste0("Population", " (Mean)")
+        )+
+        coord_flip()+
+        scale_y_continuous(labels = comma)
+    }
+    else{
       as_tibble(data_filtered) %>%
         filter(!is.na(!! rlang::sym(input$hue))) %>% 
         group_by(!! rlang::sym(input$hue)) %>% 
@@ -1026,15 +1057,250 @@ shinyServer(function(session, input, output) {
         geom_bar(stat = "identity")+
         theme_bw()+
         theme(legend.position  = "none",
+              plot.title = black.bold.plain.18.text,
               axis.text = black.bold.plain.11.text,
-              axis.title = black.bold.plain.11.text)+
-        labs(x=names(hue_labels[which(hue_labels == input$hue)]),
-             y="Median Population")+
+              axis.title = black.bold.plain.14.text)+
+        labs(title="Population",
+             x=label_category,
+             y=paste0("Population", " (Median)")
+        )+
         coord_flip()+
         scale_y_continuous(labels = comma)
-    })
-  
+    }
     
+    output$popbar <- renderPlot({
+      popbar
+    })
+    
+    # Value boxes-----------------------------------------
+    output$box_case <- renderValueBox({
+      valueBox(
+        paste0(data_filtered %>% 
+                 filter(STATE_NAME==input$state_rank, 
+                        NAME==input$county) %>% 
+                 pull(Cases_per_100k_last_7_days)), 
+        "Cases per 100k Last 7 Days", 
+        icon = icon("head-side-cough"),
+        color = "red"
+      )
+    })
+    
+    output$box_test <- renderValueBox({
+      valueBox(
+        paste0(data_filtered %>% 
+                 filter(STATE_NAME==input$state_rank, 
+                        NAME==input$county) %>% 
+                 pull(test_positivity_rate_last_7_d), "%"), 
+        "Test Positivity Rate Last 7 Days", 
+        icon = icon("vials"),
+        color = "red"
+      )
+    })
+    
+    output$box_hospitalization <- renderValueBox({
+      valueBox(
+        paste0(data_filtered %>% 
+                 filter(STATE_NAME==input$state_rank, 
+                        NAME==input$county) %>% 
+                 pull(conf_covid_admit_100k_last_7)), 
+        "Hospitalizations per 100k Last 7 Days", 
+        icon = icon("hospital"),
+        color = "red"
+      )
+    })
+    
+    output$box_inpatient <- renderValueBox({
+      valueBox(
+        paste0(data_filtered %>% 
+                 filter(STATE_NAME==input$state_rank, 
+                        NAME==input$county) %>% 
+                 pull(pct_inpatient), "%"), 
+        "Inpatient Beds Occupied by All Patients", 
+        icon = icon("hospital"),
+        color = "red"
+      )
+    })
+    
+    output$box_icu <- renderValueBox({
+      valueBox(
+        paste0(data_filtered %>%
+                 filter(STATE_NAME==input$state_rank,
+                        NAME==input$county) %>%
+                 pull(pct_icu_covid), "%"),
+        "ICU Occupied by COVID Patients",
+        icon = icon("procedures"),
+        color = "red"
+      )
+    })
+    
+    output$box_staffed_icu <- renderValueBox({
+      valueBox(
+        paste0(data_filtered %>%
+                 filter(STATE_NAME==input$state_rank,
+                        NAME==input$county) %>%
+                 pull(pct_staffed_icu), "%"),
+        "ICU Occupied by All Patients",
+        icon = icon("procedures"),
+        color = "red"
+      )
+    })
+    
+    output$box_vent <- renderValueBox({
+      valueBox(
+        paste0(data_filtered %>%
+                 filter(STATE_NAME==input$state_rank,
+                        NAME==input$county) %>%
+                 pull(pct_vent_covid), "%"),
+        "Ventilator Used by COVID Patients",
+        icon = icon("lungs"),
+        color = "red"
+      )
+    })
+    
+    output$box_death <- renderValueBox({
+      valueBox(
+        paste0(data_filtered %>%
+                 filter(STATE_NAME==input$state_rank,
+                        NAME==input$county) %>%
+                 pull(Deaths_per_100k_last_7_days)),
+        "Deaths per 100k Last 7 Days",
+        icon = icon("skull-crossbones"),
+        color = "red"
+      )
+    })
+    
+    output$box_1dose <- renderValueBox({
+      valueBox(
+        paste0(data_filtered %>%
+                 filter(STATE_NAME==input$state_rank,
+                        NAME==input$county) %>%
+                 pull(administered_dose1_pop_pct), "%"),
+        "At Least One Dose in All Age Groups",
+        icon = icon("syringe"),
+        color = "blue"
+      )
+    })
+    
+    output$box_2doses <- renderValueBox({
+      valueBox(
+        paste0(data_filtered %>%
+                 filter(STATE_NAME==input$state_rank,
+                        NAME==input$county) %>%
+                 pull(series_complete_pop_pct), "%"),
+        "Fully Vaccinated in All Age Groups",
+        icon = icon("syringe"),
+        color = "blue"
+      )
+    })
+    
+    output$box_booster <- renderValueBox({
+      valueBox(
+        paste0(data_filtered %>%
+                 filter(STATE_NAME==input$state_rank,
+                        NAME==input$county) %>%
+                 pull(booster_doses_pop_pct), "%"),
+        "Booster (or Additional) Dose in All Age Groups",
+        icon = icon("syringe"),
+        color = "blue"
+      )
+    })
+    
+    output$box_hesitancy <- renderValueBox({
+      valueBox(
+        paste0(data_filtered %>%
+                 filter(STATE_NAME==input$state_rank,
+                        NAME==input$county) %>%
+                 pull(estimated_hesitant), "%"),
+        "COVID-19 Vaccine Hesitancy",
+        icon = icon("question"),
+        color = "purple"
+      )
+    })
+    
+    output$box_svi <- renderValueBox({
+      valueBox(
+        paste0(data_filtered %>%
+                 filter(STATE_NAME==input$state_rank,
+                        NAME==input$county) %>%
+                 pull(svi_category)),
+        "CDC Social Vulnerability Index",
+        icon = icon("house-damage"),
+        color = "purple"
+      )
+    })
+    
+    output$box_cvac <- renderValueBox({
+      valueBox(
+        paste0(data_filtered %>%
+                 filter(STATE_NAME==input$state_rank,
+                        NAME==input$county) %>%
+                 pull(cvac_category)),
+        "COVID-19 Vaccine Coverage Index",
+        icon = icon("syringe"),
+        color = "purple"
+      )
+    })
+    
+    # Rank Barchart of selected variable
+    rank_state<- if(input$mean_median=="Mean"){
+      as_tibble(data_filtered) %>%
+        group_by(STATE_NAME) %>% 
+        summarise(median_x = mean(!! sym(input$selected_variable))) %>% 
+        ggplot(aes(x=reorder(STATE_NAME, median_x),y=median_x, fill = STATE_NAME))+
+        geom_bar(stat = "identity")+
+        theme_bw()+
+        theme(legend.position  = "none",
+              plot.title = black.bold.plain.18.text,
+              axis.text = black.bold.plain.14.text,
+              axis.title = black.bold.plain.18.text)+
+        labs(title = paste0(label_selected_var," by State"),
+             x="",
+             y=names(switch_labels[which(switch_labels == input$selected_variable)]))+
+        coord_flip()+
+        scale_y_continuous(sec.axis = sec_axis(~ ., labels = comma),labels = comma )
+    }
+    else{
+      as_tibble(data_filtered) %>%
+        group_by(STATE_NAME) %>% 
+        summarise(median_x = median(!! sym(input$selected_variable))) %>% 
+        ggplot(aes(x=reorder(STATE_NAME, median_x),y=median_x, fill = STATE_NAME))+
+        geom_bar(stat = "identity")+          
+        theme_bw()+
+        theme(legend.position  = "none",
+              plot.title = black.bold.plain.18.text,
+              axis.text = black.bold.plain.14.text,
+              axis.title = black.bold.plain.18.text)+
+        labs(title = paste0(label_selected_var," by State"),
+             x="",
+             y=names(switch_labels[which(switch_labels == input$selected_variable)]))+
+        coord_flip()+
+        scale_y_continuous(labels = comma)
+    }
+    
+    output$rank_state <- renderPlot({
+      rank_state
+    })
+    
+    rank_county<- 
+      as_tibble(data_filtered) %>%
+      filter(STATE_NAME %in% input$state_rank) %>% 
+      ggplot(aes(x=reorder(NAME,!! sym(input$selected_variable)), 
+                 y=!! sym(input$selected_variable), 
+                 fill = NAME))+
+      geom_bar(stat = "identity")+
+      theme_bw()+
+      theme(legend.position  = "none",
+            plot.title = black.bold.plain.18.text,
+            axis.text = black.bold.plain.14.text,
+            axis.title = black.bold.plain.18.text)+
+      labs(title = paste0(label_selected_var," in ", input$state_rank," by County"),
+           x="",
+           y=label_selected_var)+
+      coord_flip()+
+      scale_y_continuous(sec.axis = sec_axis(~ ., labels = comma),labels = comma )
+    output$rank_county <- renderPlot({
+      rank_county
+    })
     
     #TABLE TAB
     
@@ -1058,7 +1324,6 @@ shinyServer(function(session, input, output) {
     output$download_customized_datatable <- downloadHandler(
       filename = function(){'us_county_covid_customized.csv'},
       content = function(fname) {
-        # write_csv(as_tibble(data_filtered)[, input$table_columns_selected], fname)
         write_csv(as_tibble(st_set_geometry(data_filtered, NULL))[, input$table_columns_selected], fname)
       }
     )
@@ -1069,6 +1334,24 @@ shinyServer(function(session, input, output) {
         write_csv(as_tibble(st_set_geometry(us_county_covid, NULL))[,], fname)
       }
     )
+    
+    download_plot <- function(exportname, plot) {
+      downloadHandler(
+        filename = function() {
+          paste(exportname, Sys.Date(), ".png", sep = "")
+        },
+        content = function(file) {
+          ggsave(file, plot = plot, device = "png", width = 8)
+        }
+      )
+    }
+    
+    output$download_scatter <- download_plot('scatter', scatter)
+    output$download_corr_heatmap <- download_plot('corr_heatmap', corr_heatmap)
+    output$download_inequality_bar <- download_plot('inequality_bar',inequality_bar)
+    output$download_popbar <- download_plot('popbar', popbar)
+    output$download_rank_state <- download_plot('rank_state', rank_state)
+    output$download_rank_county <- download_plot('rank_county', rank_county)
     
   })
 })

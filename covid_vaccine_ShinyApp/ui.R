@@ -88,7 +88,11 @@ shinyUI(
           selectInput(
             inputId = "selected_variable",
             label = "Select a Variable",
-            choices = choices_xvariable)
+            choices = choices_xvariable),
+          selectInput(
+            inputId = "mean_median",
+            label = "Select Mean or Median for Data Aggreggation",
+            choices = c("Mean", "Median"))
           ),
         
         conditionalPanel(
@@ -173,44 +177,126 @@ shinyUI(
         
         tabItem(
           tabName = "analysis",
-          h1("Analysis of Current COVID-19 Data in The U.S. by County"),
           fluidRow(
             tabBox(
               title = "Data Analysis",
-              id = "tabset_analysis", height = "1500px", width = 12,
+              id = "tabset_analysis", height = "600px", width = 12,
               
               tabPanel("Correlation", 
-                       fluidRow(
-                         width=12,
-                         box(
-                           title = uiOutput("scatter_title"), width = 12, height = 1270, status = "primary", solidHeader = T,
-                           plotOutput("scatter") %>% withSpinner(color="#0dc5c1"),
-                           plotOutput("corr_heatmap", width = 800, height = 800)%>% withSpinner(color="#0dc5c1")
-                           
+                         div(
+                           style = "position: absolute; left: 4em; bottom: 10em;",
+                           dropdown(
+                             downloadButton(outputId = "download_scatter", label = "Download Plot"),
+                             size = "xs",
+                             icon = icon("download", class = "opt"), 
+                             up = TRUE
+                           )
+                         ),
+                         plotOutput("scatter") %>% withSpinner(color="#0dc5c1"),
+                       br(),
+                       br(),
+                       div(
+                         style = "position: absolute; left: 4em; bottom: -50em;",
+                         dropdown(
+                           downloadButton(outputId = "download_corr_heatmap", label = "Download Plot"),
+                           size = "xs",
+                           icon = icon("download", class = "opt"), 
+                           up = TRUE
                          )
-                       )
+                       ),
+                         plotOutput("corr_heatmap", width = 800, height = 800)%>% withSpinner(color="#0dc5c1")
+                       
               ),
-              tabPanel("Inequality", 
-                       fluidRow(
+              tabPanel("Inequality",
+                       
                          column(
                            width = 6,
-                           box(
-                             title = uiOutput("xboxplot_title"), width = NULL, status = "primary",solidHeader = T,
-                             plotOutput("xbar") %>% withSpinner(color="#0dc5c1")
-                           )
+                           div(
+                             style = "position: absolute; left: 4em; bottom: -2em;",
+                             dropdown(
+                               downloadButton(outputId = "download_inequality_bar", label = "Download Plot"),
+                               size = "xs",
+                               icon = icon("download", class = "opt"), 
+                               up = TRUE
+                             )
+                           ),
+                           plotOutput("inequality_bar") %>% withSpinner(color="#0dc5c1")
                          ),
                          column(
                            width = 6,
-                           box(
-                             title = "Median Population", width = NULL, status = "primary",solidHeader = T,
-                             plotOutput("popbar") %>% withSpinner(color="#0dc5c1")
+                           div(
+                             style = "position: absolute; left: 10em; bottom: -2em;",
+                             dropdown(
+                               downloadButton(outputId = "download_popbar", label = "Download Plot"),
+                               size = "xs",
+                               icon = icon("download", class = "opt"), 
+                               up = TRUE
+                             )
+                           ),
+                           plotOutput("popbar") %>% withSpinner(color="#0dc5c1")
+                         )
+                       
+              ),
+              tabPanel("Rank",
+                       fluidRow(
+                         valueBoxOutput("box_case",3),
+                         valueBoxOutput("box_test",3),
+                         valueBoxOutput("box_hospitalization",3),
+                         valueBoxOutput("box_inpatient",3)
+                       ),
+                       fluidRow(
+                         valueBoxOutput("box_icu",3),
+                         valueBoxOutput("box_staffed_icu",3),
+                         valueBoxOutput("box_vent",3),
+                         valueBoxOutput("box_death",3)
+                       ),
+                       fluidRow(
+                         valueBoxOutput("box_1dose",3),
+                         valueBoxOutput("box_2doses",3),
+                         valueBoxOutput("box_booster",3),
+                         valueBoxOutput("box_hesitancy",3)
+                         ),
+                       fluidRow(
+                         valueBoxOutput("box_svi",width = 6),
+                         valueBoxOutput("box_cvac",width = 6)),
+                       fluidRow(
+                         tabBox(
+                           title = "State and County Rank",
+                           id="rank_state_county",
+                           width = 12,
+                           tabPanel("State",
+                                    div(
+                                      style = "position: absolute; left: 4em; top: 4em;",
+                                      dropdown(
+                                        downloadButton(outputId = "download_rank_state", label = "Download Plot"),
+                                        size = "xs",
+                                        icon = icon("download", class = "opt"), 
+                                        up = TRUE
+                                      )
+                                    ),
+                                    br(),
+                                    br(),
+                                    plotOutput("rank_state", width = 900, height = 800) %>% withSpinner(color="#0dc5c1")
+                           ),
+                           tabPanel("County",
+                                    div(
+                                      style = "position: absolute; left: 4em; top: 4em;",
+                                      dropdown(
+                                        downloadButton(outputId = "download_rank_county", label = "Download Plot"),
+                                        size = "xs",
+                                        icon = icon("download", class = "opt"), 
+                                        up = TRUE
+                                      )
+                                    ),
+                                    br(),
+                                    br(),
+                                    plotOutput("rank_county", width = 900, height = 1000) %>% withSpinner(color="#0dc5c1")
                            )
                          )
                        )
-              ),
-              tabPanel("Rank", "Rank analysis")
               )
             )
+          )
         ),
         
         # Table tab
