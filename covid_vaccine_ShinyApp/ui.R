@@ -141,7 +141,7 @@ shinyUI(
           selectInput(
             inputId = "county",
             label = "Select a County",
-            choices = NULL)
+            choices = "Autauga")
         ),
         
         # Conditional panel except About tab
