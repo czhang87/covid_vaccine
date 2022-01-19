@@ -23,12 +23,12 @@ library(ggcorrplot)
 library(repr)
 library(rlang)
 library(xlsx)
-# library(curly)
+library(shinybusy)
 
 
  
 # # set working directory
-# setwd("~/Documents/Data Science/bootcamp/NSS/DS5/nss_projects/covid_vaccine/covid_vaccine_ShinyApp")
+setwd("~/Documents/Data Science/bootcamp/NSS/DS5/nss_projects/covid_vaccine/covid_vaccine_ShinyApp")
 
 # #####################################################################################################
 # # Geospatial data with demographic info
@@ -70,17 +70,21 @@ covid_vaccine_hesitancy <- covid_vaccine_hesitancy %>%
   mutate(fips_code = as.character(fips_code)) %>%
   mutate(fips_code = str_pad(fips_code, 5, pad = "0"))
 
+state_lat_lon <- read_csv("data/state_lat_lon.csv")  
+state_lat_lon
+
 # merge data frame by FIPS
 
 us_county_covid <- left_join(us_county_covid, covid_vaccination, by = c("FIPS"="fips"))
 us_county_covid <- left_join(us_county_covid, case_hospitalization_death, by = c("FIPS"="FIPS_code"))
 us_county_covid <- left_join(us_county_covid, covid_vaccine_hesitancy, by = c("FIPS"="fips_code"))
+us_county_covid <- left_join(us_county_covid, state_lat_lon, by=c("STATE_NAME"="state_name"))
 
 # calculate and add booster_doses_pop_pct column, factor metro_status, svi_category, and cvac_category, filter out four regions
 us_county_covid <- us_county_covid %>%
   mutate(booster_doses_pop_pct = round(booster_doses/(series_complete_yes/series_complete_pop_pct), 1),
-         booster_doses_18pluspop_pct = round(booster_doses_18plus/(series_complete_18plus/series_complete_18pluspop), 1),
-         booster_doses_65pluspop_pct = round(booster_doses_65plus/(series_complete_65plus/series_complete_65pluspop), 1),
+         booster_doses_18pluspop_pct = round(booster_doses_18plus/(series_complete_18plus/series_complete_18pluspop_pct), 1),
+         booster_doses_65pluspop_pct = round(booster_doses_65plus/(series_complete_65plus/series_complete_65pluspop_pct), 1),
          estimated_hesitant = round(estimated_hesitant*100,1),
          metro_status = factor(metro_status, levels = c("Metro",
                                                         "Non-metro")),

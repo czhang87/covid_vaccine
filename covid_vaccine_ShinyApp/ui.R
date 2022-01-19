@@ -3,8 +3,9 @@
 # Define UI for application 
 shinyUI(
 
+  
   dashboardPage(
-
+    
     
     dashboardHeader(
       title="COVID-19 in the U.S."
@@ -163,6 +164,7 @@ shinyUI(
     ),
     
     dashboardBody(
+      add_busy_spinner(spin = "fading-circle"),
       
       tabItems(
         
@@ -170,7 +172,7 @@ shinyUI(
         tabItem(
           tabName = "map",
           tags$style(type = "text/css", "#map {height: calc(100vh - 80px) !important;}"),# increase the height of the map
-          leafletOutput("map") %>% withSpinner(color="#0dc5c1")
+          leafletOutput("map") 
           
         ),
         
@@ -195,7 +197,7 @@ shinyUI(
                          ),
                        br(),
                        br(),
-                         plotOutput("scatter") %>% withSpinner(color="#0dc5c1"),
+                         plotOutput("scatter") ,
                        br(),
                        br(),
                        div(
@@ -207,7 +209,7 @@ shinyUI(
                            up = TRUE
                          )
                        ),
-                         plotOutput("corr_heatmap", width = 800, height = 800)%>% withSpinner(color="#0dc5c1")
+                         plotOutput("corr_heatmap", width = 800, height = 800)
                        
               ),
               tabPanel("Inequality",
@@ -233,13 +235,13 @@ shinyUI(
                            width = 6,
                            br(),
                            br(),
-                           plotOutput("inequality_bar") %>% withSpinner(color="#0dc5c1")
+                           plotOutput("inequality_bar") 
                          ),
                          column(
                            width = 6,
                            br(),
                            br(),
-                           plotOutput("popbar") %>% withSpinner(color="#0dc5c1")
+                           plotOutput("popbar") 
                          )
                        
               ),
@@ -283,7 +285,7 @@ shinyUI(
                                     ),
                                     br(),
                                     br(),
-                                    plotOutput("rank_county", width = 900, height = 1200) %>% withSpinner(color="#0dc5c1")
+                                    plotOutput("rank_county", width = 900, height = 1200) 
                            ),
                            tabPanel("State",
                                     div(
@@ -297,7 +299,7 @@ shinyUI(
                                     ),
                                     br(),
                                     br(),
-                                    plotOutput("rank_state", width = 900, height = 800) %>% withSpinner(color="#0dc5c1")
+                                    plotOutput("rank_state", width = 900, height = 800)
                            )
                          )
                        )
@@ -320,7 +322,7 @@ shinyUI(
                      br(),
                      br(),
                      br(),
-                     dataTableOutput("datatable_customized") %>% withSpinner(color="#0dc5c1")
+                     dataTableOutput("datatable_customized") 
             ),
             tabPanel("Full", 
                      downloadButton('download_full_datatable_csv', 'CSV'),
@@ -328,7 +330,7 @@ shinyUI(
                      br(),
                      br(),
                      br(),
-                     dataTableOutput("datatable_full") %>% withSpinner(color="#0dc5c1")
+                     dataTableOutput("datatable_full") 
             )
           )
         ),

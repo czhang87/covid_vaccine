@@ -4,10 +4,10 @@
 shinyServer(function(session, input, output) {
   
   # # update the county drop down menu based on the selection of the state drop down menu
-  # observe({
-  #   updateSelectInput(session, "county",
-  #                     choices = us_county_covid[us_county_covid$STATE_NAME == input$state_rank,]$NAME)
-  # })
+  observe({
+    updateSelectInput(session, "county",
+                      choices = us_county_covid[us_county_covid$STATE_NAME == input$state_rank,]$NAME)
+  })
   
   # Reset Input Button
   observeEvent(input$reset_input, {
@@ -45,6 +45,19 @@ shinyServer(function(session, input, output) {
     leafletProxy("map") %>% setView(lat = initial_lat, lng = initial_lng, zoom = initial_zoom)
   })
   
+  observe({
+    req(choices_state %in% input$state)
+    if(input$state=="United States"){
+      leafletProxy("map") %>% setView(lat = initial_lat, lng = initial_lng, zoom = initial_zoom)
+    }
+    else{
+      leafletProxy("map") %>% setView(lat = us_county_covid[us_county_covid$STATE_NAME==input$state,]$latitude[1], 
+                                      lng = us_county_covid[us_county_covid$STATE_NAME==input$state,]$longitude[1], 
+                                      zoom = initial_zoom+2)
+    }
+  })
+  
+  
   # Reactive components
   observe({
     
@@ -53,9 +66,7 @@ shinyServer(function(session, input, output) {
       filter(metro_status %in% input$metro) %>% 
       filter(between(POPULATION, input$population[1], input$population[2]))
     
-    # update the county drop down menu based on the selection of the state drop down menu
-    updateSelectInput(session, "county",
-                      choices = data_filtered[data_filtered$STATE_NAME == input$state_rank,]$NAME)
+
     
     # filter data based on state
     if("United States" %in% input$state){
@@ -65,6 +76,12 @@ shinyServer(function(session, input, output) {
       data_filtered <- data_filtered %>%
         filter(STATE_NAME %in% input$state)
     }
+    
+    # # update the county drop down menu based on the selection of the state drop down menu
+    # updateSelectInput(session, "county",
+    #                   choices = data_filtered[data_filtered$STATE_NAME == input$state_rank,]$NAME)
+    
+    req(nrow(data_filtered)>0)
     
     # labels of vaccination percentage for the map popup
     labels_all_ages <- paste(
@@ -91,7 +108,7 @@ shinyServer(function(session, input, output) {
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
       "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
       "At lease one dose:", data_filtered$administered_dose1_recip_12pluspop_pct, "%<br/>",
-      "Fully vaccinated:", data_filtered$series_complete_12pluspop,"%<br/>",
+      "Fully vaccinated:", data_filtered$series_complete_12pluspop_pct,"%<br/>",
       "Booster dose:", data_filtered$booster_doses_pop_pct,"%<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
       "CDC Social Vulnerability Index: ", data_filtered$svi_category,"<br/>"
@@ -101,7 +118,7 @@ shinyServer(function(session, input, output) {
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
       "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
       "At lease one dose:", data_filtered$administered_dose1_recip_18pluspop_pct, "%<br/>",
-      "Fully vaccinated:", data_filtered$series_complete_18pluspop,"%<br/>",
+      "Fully vaccinated:", data_filtered$series_complete_18pluspop_pct,"%<br/>",
       "Booster dose:", data_filtered$booster_doses_18pluspop_pct,"%<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
       "CDC Social Vulnerability Index: ", data_filtered$svi_category,"<br/>"
@@ -111,7 +128,7 @@ shinyServer(function(session, input, output) {
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
       "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
       "At lease one dose:", data_filtered$administered_dose1_recip_65pluspop_pct, "%<br/>",
-      "Fully vaccinated:", data_filtered$series_complete_65pluspop,"%<br/>",
+      "Fully vaccinated:", data_filtered$series_complete_65pluspop_pct,"%<br/>",
       "Booster dose:", data_filtered$booster_doses_65pluspop_pct,"%<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
       "CDC Social Vulnerability Index: ", data_filtered$svi_category,"<br/>"
@@ -442,7 +459,7 @@ shinyServer(function(session, input, output) {
         else if (input$age == "≥ 12 Years"){
           
           # palette
-          mypal <- colorBin("YlGnBu", domain = data_filtered$series_complete_12pluspop, bins = bins_vaccination)
+          mypal <- colorBin("YlGnBu", domain = data_filtered$series_complete_12pluspop_pct, bins = bins_vaccination)
           
           #leafletProxy map
           leafletProxy("map", data = data_filtered )%>%
@@ -453,7 +470,7 @@ shinyServer(function(session, input, output) {
               position="topleft") %>% # add Reset View button in the map
             addPolygons(
               data = data_filtered,
-              fillColor = ~mypal(data_filtered$series_complete_12pluspop),
+              fillColor = ~mypal(data_filtered$series_complete_12pluspop_pct),
               color ="black",
               stroke = T,
               smoothFactor = 0.2,
@@ -466,7 +483,7 @@ shinyServer(function(session, input, output) {
             addLegend(
               position = "topright",
               pal= mypal,
-              values = data_filtered$series_complete_12pluspop,
+              values = data_filtered$series_complete_12pluspop_pct,
               title = titles_vaccination,
               opacity = 1
             )
@@ -474,7 +491,7 @@ shinyServer(function(session, input, output) {
         
         else if(input$age == "≥ 18 Years"){
           # palette
-          mypal <- colorBin("YlGnBu", domain = data_filtered$series_complete_18pluspop, bins = bins_vaccination)
+          mypal <- colorBin("YlGnBu", domain = data_filtered$series_complete_18pluspop_pct, bins = bins_vaccination)
           
           #leafletProxy map
           leafletProxy("map", data = data_filtered )%>%
@@ -485,7 +502,7 @@ shinyServer(function(session, input, output) {
               position="topleft") %>% # add Reset View button in the map
             addPolygons(
               data = data_filtered,
-              fillColor = ~mypal(data_filtered$series_complete_18pluspop),
+              fillColor = ~mypal(data_filtered$series_complete_18pluspop_pct),
               color ="black",
               stroke = T,
               smoothFactor = 0.2,
@@ -498,7 +515,7 @@ shinyServer(function(session, input, output) {
             addLegend(
               position = "topright",
               pal= mypal,
-              values = data_filtered$series_complete_18pluspop,
+              values = data_filtered$series_complete_18pluspop_pct,
               title = titles_vaccination,
               opacity = 1
             )
@@ -506,7 +523,7 @@ shinyServer(function(session, input, output) {
         
         else {
           # palette
-          mypal <- colorBin("YlGnBu", domain = data_filtered$series_complete_65pluspop, bins = bins_vaccination)
+          mypal <- colorBin("YlGnBu", domain = data_filtered$series_complete_65pluspop_pct, bins = bins_vaccination)
           
           #leafletProxy map
           leafletProxy("map", data = data_filtered )%>%
@@ -517,7 +534,7 @@ shinyServer(function(session, input, output) {
               position="topleft") %>% # add Reset View button in the map
             addPolygons(
               data = data_filtered,
-              fillColor = ~mypal(data_filtered$series_complete_65pluspop),
+              fillColor = ~mypal(data_filtered$series_complete_65pluspop_pct),
               color ="black",
               stroke = T,
               smoothFactor = 0.2,
@@ -530,7 +547,7 @@ shinyServer(function(session, input, output) {
             addLegend(
               position = "topright",
               pal= mypal,
-              values = data_filtered$series_complete_65pluspop,
+              values = data_filtered$series_complete_65pluspop_pct,
               title = titles_vaccination,
               opacity = 1
             )
@@ -897,7 +914,7 @@ shinyServer(function(session, input, output) {
     label_selected_var <- names(switch_labels[which(switch_labels == input$selected_variable)])
     label_category <- names(hue_labels[which(hue_labels == input$hue)])
     
-    req(nrow(data_filtered)>0)
+    
     correlation <-cor(data_filtered[[input$yvariable]],
                       data_filtered[[input$xvariable]],
                       use="complete.obs") %>% round(3)
@@ -980,7 +997,7 @@ shinyServer(function(session, input, output) {
       cor() %>% 
       ggcorrplot(title = "Correlation Between Variables",
                  legend.title = "Correlation",
-                 lab=T, type = "lower", hc.order = T, p.mat=p.mat, insig = "blank")+
+                 lab=T, type = "lower", hc.order = T, p.mat=p.mat)+
       scale_x_discrete(labels=labels_corr)+
       scale_y_discrete(labels=labels_corr)+
       theme(plot.title = black.bold.plain.18.text,
@@ -1092,8 +1109,6 @@ shinyServer(function(session, input, output) {
         )
       )
     })
-    
-    
     
     output$box_case <- renderValueBox({
       valueBox(
@@ -1396,6 +1411,7 @@ shinyServer(function(session, input, output) {
     output$download_popbar <- download_plot('popbar', popbar)
     output$download_rank_state <- download_plot('rank_state', rank_state)
     output$download_rank_county <- download_plot('rank_county', rank_county)
+    
     
   })
 })
