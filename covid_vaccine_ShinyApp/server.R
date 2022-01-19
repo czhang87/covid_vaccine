@@ -897,6 +897,7 @@ shinyServer(function(session, input, output) {
     label_selected_var <- names(switch_labels[which(switch_labels == input$selected_variable)])
     label_category <- names(hue_labels[which(hue_labels == input$hue)])
     
+    req(nrow(data_filtered)>0)
     correlation <-cor(data_filtered[[input$yvariable]],
                       data_filtered[[input$xvariable]],
                       use="complete.obs") %>% round(3)
