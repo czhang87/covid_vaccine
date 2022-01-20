@@ -172,7 +172,8 @@ shinyUI(
         tabItem(
           tabName = "map",
           tags$style(type = "text/css", "#map {height: calc(100vh - 80px) !important;}"),# increase the height of the map
-          leafletOutput("map") 
+          leafletOutput("map"),
+          downloadButton( outputId = "download_map")
           
         ),
         

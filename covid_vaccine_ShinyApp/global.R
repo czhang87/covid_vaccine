@@ -24,6 +24,7 @@ library(repr)
 library(rlang)
 library(xlsx)
 library(shinybusy)
+library(mapview)
 
 
  

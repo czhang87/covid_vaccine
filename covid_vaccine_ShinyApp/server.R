@@ -4,10 +4,10 @@
 shinyServer(function(session, input, output) {
   
   # # update the county drop down menu based on the selection of the state drop down menu
-  observe({
-    updateSelectInput(session, "county",
-                      choices = us_county_covid[us_county_covid$STATE_NAME == input$state_rank,]$NAME)
-  })
+  # observe({
+  #   updateSelectInput(session, "county",
+  #                     choices = us_county_covid[us_county_covid$STATE_NAME == input$state_rank,]$NAME)
+  # })
   
   # Reset Input Button
   observeEvent(input$reset_input, {
@@ -32,11 +32,12 @@ shinyServer(function(session, input, output) {
   # MAP TAB
   
   # Leaflet map
+  initial_map <- leaflet() %>%
+    addProviderTiles("OpenStreetMap.Mapnik")%>%
+    setView(lat = initial_lat, lng = initial_lng, zoom = initial_zoom)
+  
   output$map <- renderLeaflet({
-    leaflet() %>%
-      addProviderTiles("OpenStreetMap.Mapnik")%>%
-      # addTiles() %>% 
-      setView(lat = initial_lat, lng = initial_lng, zoom = initial_zoom)
+    initial_map
   })
   
   # Reset button in the map
@@ -78,8 +79,8 @@ shinyServer(function(session, input, output) {
     }
     
     # # update the county drop down menu based on the selection of the state drop down menu
-    # updateSelectInput(session, "county",
-    #                   choices = data_filtered[data_filtered$STATE_NAME == input$state_rank,]$NAME)
+    updateSelectInput(session, "county",
+                      choices = data_filtered[data_filtered$STATE_NAME == input$state_rank,]$NAME)
     
     req(nrow(data_filtered)>0)
     
@@ -1412,6 +1413,20 @@ shinyServer(function(session, input, output) {
     output$download_rank_state <- download_plot('rank_state', rank_state)
     output$download_rank_county <- download_plot('rank_county', rank_county)
     
+    output$download_map <- downloadHandler(
+      filename = paste0( Sys.Date()
+                         , "_customLeafletmap"
+                         , ".pdf"
+      )
+      
+      , content = function(file) {
+        mapshot( x = initial_map
+                 , file = file
+                 , cliprect = "viewport" # the clipping rectangle matches the height & width from the viewing port
+                 , selfcontained = FALSE # when this was not specified, the function for produced a PDF of two pages: one of the leaflet map, the other a blank page.
+        )
+      }
+    )
     
   })
 })
