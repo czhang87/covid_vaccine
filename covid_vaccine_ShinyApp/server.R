@@ -67,8 +67,6 @@ shinyServer(function(session, input, output) {
       filter(metro_status %in% input$metro) %>% 
       filter(between(POPULATION, input$population[1], input$population[2]))
     
-
-    
     # filter data based on state
     if("United States" %in% input$state){
       data_filtered <- data_filtered
@@ -941,7 +939,7 @@ shinyServer(function(session, input, output) {
       geom_point(aes(size= POPULATION), alpha = 0.5)+
       geom_smooth(method = lm, formula = y~x)+
       theme_bw()+
-      theme(plot.title = black.bold.plain.18.text,
+      theme(plot.title = black.bold.plain.14.text,
             axis.text = black.bold.plain.11.text,
             axis.title = black.bold.plain.14.text,
             legend.position="bottom",
@@ -1339,8 +1337,41 @@ shinyServer(function(session, input, output) {
       coord_flip()+
       scale_y_continuous(sec.axis = sec_axis(~ ., labels = comma),labels = comma )
     
-    output$rank_county <- renderPlot({
+    output$rank_county<- renderPlot({
       rank_county
+    })
+
+    output$rank_county_ui <- renderUI({
+      if(as_tibble(data_filtered[data_filtered$STATE_NAME==input$state_rank,])
+         %>%count()
+         %>%pull(n) < 5
+      ){
+        plotOutput("rank_county", width = 900, height = 200)
+      }
+      else if(as_tibble(data_filtered[data_filtered$STATE_NAME==input$state_rank,])
+              %>%count()
+              %>%pull(n) < 30
+      ){
+        plotOutput("rank_county", width = 900, height = 450)
+      }
+      else if(as_tibble(data_filtered[data_filtered$STATE_NAME==input$state_rank,])
+              %>%count()
+              %>%pull(n) < 60){
+        plotOutput("rank_county", width = 900, height = 900)
+      }
+      else if(as_tibble(data_filtered[data_filtered$STATE_NAME==input$state_rank,])
+              %>%count()
+              %>%pull(n) < 106){
+        plotOutput("rank_county", width = 900, height = 1100)
+      }
+      else if(as_tibble(data_filtered[data_filtered$STATE_NAME==input$state_rank,])
+              %>%count()
+              %>%pull(n) < 160){
+        plotOutput("rank_county", width = 900, height = 1200)
+      }
+      else{
+        plotOutput("rank_county", width = 900, height = 3000)
+      }
     })
     
     #TABLE TAB
@@ -1394,24 +1425,103 @@ shinyServer(function(session, input, output) {
                                                                    as_tibble(st_set_geometry(data_filtered, NULL))[, input$table_columns_selected])
     output$download_full_datatable_xlsx <- download_table_xlsx("us_county_covid",
                                                              as_tibble(st_set_geometry(data_filtered, NULL))[,])
-  
+    
     download_plot <- function(exportname, plot) {
       downloadHandler(
         filename = function() {
-          paste(exportname, Sys.Date(), ".png", sep = "")
+          paste(exportname, "_",Sys.Date(), ".png", sep = "")
         },
         content = function(file) {
-          ggsave(file, plot = plot, device = "png", width = 8)
+          ggsave(file, plot = plot, device = "png",width = 8, dpi = 300)
+          
         }
       )
     }
     
-    output$download_scatter <- download_plot('scatter', scatter)
-    output$download_corr_heatmap <- download_plot('corr_heatmap', corr_heatmap)
+    download_plot_corr <- function(exportname, plot) {
+      downloadHandler(
+        filename = function() {
+          paste(exportname, "_",Sys.Date(), ".png", sep = "")
+        },
+        content = function(file) {
+          ggsave(file, plot = plot, device = "png",width = 12, dpi = 300)
+          
+        }
+      )
+    }
+    
+    download_plot_corr_heatmap <- function(exportname, plot) {
+      downloadHandler(
+        filename = function() {
+          paste(exportname, "_",Sys.Date(), ".png", sep = "")
+        },
+        content = function(file) {
+          ggsave(file, plot = plot, device = "png",width = 10, height = 10, dpi = 300)
+          
+        }
+      )
+    }
+    
+    download_plot_state <- function(exportname, plot) {
+      downloadHandler(
+        filename = function() {
+          paste(exportname, "_",Sys.Date(), ".png", sep = "")
+        },
+        content = function(file) {
+          ggsave(file, plot = plot, device = "png",width = 8, height = 10, dpi = 300)
+          
+        }
+      )
+    }
+    
+    download_plot_county <- function(exportname, plot) {
+      downloadHandler(
+        filename = function() {
+          paste(exportname, "_",Sys.Date(), ".png", sep = "")
+        },
+        content = function(file) {
+          if(as_tibble(data_filtered[data_filtered$STATE_NAME==input$state_rank,]) 
+             %>%count() 
+             %>%pull(n) < 5
+          ){
+            ggsave(file, plot = plot, device = "png", width = 8, height = 3, dpi = 300)
+          }
+          else if(as_tibble(data_filtered[data_filtered$STATE_NAME==input$state_rank,]) 
+             %>%count() 
+             %>%pull(n) < 30
+          ){
+            ggsave(file, plot = plot, device = "png", width = 8, height = 8, dpi = 300)
+          }
+          else if(as_tibble(data_filtered[data_filtered$STATE_NAME==input$state_rank,]) 
+                  %>%count() 
+                  %>%pull(n) < 60){
+            ggsave(file, plot = plot, device = "png", width = 8, height = 10, dpi = 300)
+          }
+          else if(as_tibble(data_filtered[data_filtered$STATE_NAME==input$state_rank,]) 
+                  %>%count() 
+                  %>%pull(n) < 106){
+        ggsave(file, plot = plot, device = "png", width = 8, height = 20, dpi = 300)
+          }
+          else if(as_tibble(data_filtered[data_filtered$STATE_NAME==input$state_rank,]) 
+                  %>%count() 
+                  %>%pull(n) < 160){
+            ggsave(file, plot = plot, device = "png", width = 8, height = 28, dpi = 300)
+          }
+          else{
+            ggsave(file, plot = plot, device = "png", width = 8, height = 40, dpi = 300)
+          }
+          
+        }
+      )
+    }
+    
+    
+    output$download_scatter <- download_plot_corr('scatter', scatter)
+    output$download_corr_heatmap <- download_plot_corr_heatmap('corr_heatmap', corr_heatmap)
     output$download_inequality_bar <- download_plot('inequality_bar',inequality_bar)
     output$download_popbar <- download_plot('popbar', popbar)
-    output$download_rank_state <- download_plot('rank_state', rank_state)
-    output$download_rank_county <- download_plot('rank_county', rank_county)
+    output$download_rank_state <- download_plot_state('rank_state', rank_state)
+    output$download_rank_county <- download_plot_county(paste0('rank_county',"_",input$state_rank), rank_county)
     
     output$download_map <- downloadHandler(
       filename = paste0( Sys.Date()
@@ -1429,4 +1539,5 @@ shinyServer(function(session, input, output) {
     )
     
   })
+
 })

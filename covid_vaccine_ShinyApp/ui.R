@@ -172,8 +172,9 @@ shinyUI(
         tabItem(
           tabName = "map",
           tags$style(type = "text/css", "#map {height: calc(100vh - 80px) !important;}"),# increase the height of the map
-          leafletOutput("map"),
-          downloadButton( outputId = "download_map")
+          downloadButton( outputId = "download_map"),
+          leafletOutput("map")
+          
           
         ),
         
@@ -224,7 +225,7 @@ shinyUI(
                          )
                        ),
                        div(
-                         style = "position: absolute; left: 37em; top: 4em;",
+                         style = "position: absolute; left: 4em; top: 26em;",
                          dropdown(
                            downloadButton(outputId = "download_popbar", label = "Download Plot"),
                            size = "xs",
@@ -232,19 +233,13 @@ shinyUI(
                            up = TRUE
                          )
                        ),
-                       column(
-                           width = 6,
-                           br(),
-                           br(),
-                           plotOutput("inequality_bar") 
-                         ),
-                         column(
-                           width = 6,
-                           br(),
-                           br(),
-                           plotOutput("popbar") 
-                         )
-                       
+                       br(),
+                       br(),
+                       plotOutput("inequality_bar", height = 250, width="80%"), 
+                       br(),
+                       br(),
+                       br(),
+                       plotOutput("popbar", height = 250, width="80%")
               ),
               tabPanel("Rank",
                        h2(uiOutput("title_value_box")),
@@ -286,7 +281,7 @@ shinyUI(
                                     ),
                                     br(),
                                     br(),
-                                    plotOutput("rank_county", width = 900, height = 1200) 
+                                    uiOutput("rank_county_ui")
                            ),
                            tabPanel("State",
                                     div(
