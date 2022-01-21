@@ -3,12 +3,6 @@
 # Define server logic required to draw a histogram
 shinyServer(function(session, input, output) {
   
-  # # update the county drop down menu based on the selection of the state drop down menu
-  # observe({
-  #   updateSelectInput(session, "county",
-  #                     choices = us_county_covid[us_county_covid$STATE_NAME == input$state_rank,]$NAME)
-  # })
-  
   # Reset Input Button
   observeEvent(input$reset_input, {
     
@@ -29,9 +23,9 @@ shinyServer(function(session, input, output) {
     
   })
   
-  # MAP TAB
+  # MAP TAB-------------------------------------------------------------------------------
   
-  # Leaflet map
+  # Initial Leaflet map
   initial_map <- leaflet() %>%
     addProviderTiles("OpenStreetMap.Mapnik")%>%
     setView(lat = initial_lat, lng = initial_lng, zoom = initial_zoom)
@@ -58,8 +52,7 @@ shinyServer(function(session, input, output) {
     }
   })
   
-  
-  # Reactive components
+  # Reactive components in observe({})
   observe({
     
     # filter data based on metro status
@@ -76,7 +69,7 @@ shinyServer(function(session, input, output) {
         filter(STATE_NAME %in% input$state)
     }
     
-    # # update the county drop down menu based on the selection of the state drop down menu
+    # update the county drop down menu based on the selection of the state drop down menu
     updateSelectInput(session, "county",
                       choices = data_filtered[data_filtered$STATE_NAME == input$state_rank,]$NAME)
     
@@ -173,7 +166,7 @@ shinyServer(function(session, input, output) {
     labels_hesitancy <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
       "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
-      "COVID-19 Vaccine Hesitancy Percentage:", data_filtered$estimated_hesitant,"<br/>",
+      "COVID-19 Vaccine Hesitancy Percentage:", data_filtered$estimated_hesitant,"%<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
       "CDC Social Vulnerability Index: ", data_filtered$svi_category,"<br/>"
     ) %>% lapply(htmltools::HTML)
@@ -183,19 +176,19 @@ shinyServer(function(session, input, output) {
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
       "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
-      "CDC Social Vulnerability Index: ", data_filtered$svi_category,"<br/>"
+      "CDC Social Vulnerability Index: ", data_filtered$social_vulnerability_index,",", data_filtered$svi_category,"<br/>"
     ) %>% lapply(htmltools::HTML)
     
     # labels of COVID-19 Vaccine Coverage Index
     labels_cvac <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
       "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
-      "COVID-19 Vaccine Coverage Index: ", data_filtered$ability_to_handle_a_covid,"<br/>",
+      "COVID-19 Vaccine Coverage Index: ",data_filtered$ability_to_handle_a_covid,",",data_filtered$cvac_category,"<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
       "CDC Social Vulnerability Index: ", data_filtered$svi_category,"<br/>"
     ) %>% lapply(htmltools::HTML)
     
-    # Legend titles
+    # Figure Legend titles
     titles_cases<- "Cases per 100k Last 7 Days"
     titles_tests <- "Test Positivity Rate Last 7 Days"
     titles_hospitalizations <- "Hospitalizations per 100k Last 7 Days"
@@ -205,7 +198,7 @@ shinyServer(function(session, input, output) {
     titles_svi <- "CDC Social Vulnerability Index"
     titles_cvac <- "COVID-19 Vaccine Coverage Index"
     
-    # bins
+    # Map Palette bins
     bins_cases <- round(quantile(unique(us_county_covid$Cases_per_100k_last_7_days), c(0,0.25,0.5,0.75,1), na.rm = T),0)
     bins_tests <- c(0, 25, 50, 75, 100)
     bins_hospitalizations <- round(quantile(unique(us_county_covid$conf_covid_admit_100k_last_7), c(0,0.25,0.5,0.75,1), na.rm = T),0)
@@ -215,7 +208,7 @@ shinyServer(function(session, input, output) {
     bins_svi <- c(0, 0.25, 0.5, 0.75, 1)
     bins_cvac <- c(0, 0.25, 0.5, 0.75, 1)
     
-    # Data types
+    # Polygon rendering based on Data Types
     
     # Vaccination
     if ( input$data_type == "Vaccination Percentage"){
@@ -834,7 +827,6 @@ shinyServer(function(session, input, output) {
       
     }
     
-    
     # CDC SVI
     else if (input$data_type == "CDC Social Vulnerability Index") {
       
@@ -905,14 +897,13 @@ shinyServer(function(session, input, output) {
         )
     }
     
-    # ANALYSIS TAB
+    # ANALYSIS TAB-------------------------------------------------------------------
     
     # Plot titles and labels
     label_xvar<-names(switch_labels[which(switch_labels == input$xvariable)])
     label_yvar<-names(switch_labels[which(switch_labels == input$yvariable)])
     label_selected_var <- names(switch_labels[which(switch_labels == input$selected_variable)])
     label_category <- names(hue_labels[which(hue_labels == input$hue)])
-    
     
     correlation <-cor(data_filtered[[input$yvariable]],
                       data_filtered[[input$xvariable]],
@@ -1014,7 +1005,7 @@ shinyServer(function(session, input, output) {
     inequality_bar <-if(input$mean_median=="Mean"){
       as_tibble(data_filtered) %>%
         group_by(!! sym(input$hue)) %>% 
-        summarise(median_x = mean(!! sym(input$selected_variable))) %>% 
+        summarise(median_x = mean(!! sym(input$selected_variable), na.rm=T)) %>% 
         ggplot(aes_string(x=input$hue,y="median_x", fill = input$hue))+
         geom_bar(stat = "identity")+
         theme_bw()+
@@ -1032,7 +1023,7 @@ shinyServer(function(session, input, output) {
     else{
       as_tibble(data_filtered) %>%
         group_by(!! sym(input$hue)) %>% 
-        summarise(median_x = median(!! sym(input$selected_variable))) %>% 
+        summarise(median_x = median(!! sym(input$selected_variable), na.rm=T)) %>% 
         ggplot(aes_string(x=input$hue,y="median_x", fill = input$hue))+
         geom_bar(stat = "identity")+
         theme_bw()+
@@ -1051,7 +1042,6 @@ shinyServer(function(session, input, output) {
     output$inequality_bar <- renderPlot({
       inequality_bar
     })
-    
     
     # Barchart of population
     popbar<-if(input$mean_median=="Mean"){
@@ -1097,7 +1087,7 @@ shinyServer(function(session, input, output) {
       popbar
     })
     
-    # Value boxes-----------------------------------------
+    # Value boxes
     rank_county_selected <- data_filtered[data_filtered$STATE_NAME==input$state_rank&data_filtered$NAME==input$county,]
     output$title_value_box <- renderPrint({
       HTML(
@@ -1249,7 +1239,7 @@ shinyServer(function(session, input, output) {
                  pull(estimated_hesitant), "%"),
         "COVID-19 Vaccine Hesitancy",
         icon = icon("question"),
-        color = "purple"
+        color = "blue"
       )
     })
     
@@ -1277,11 +1267,11 @@ shinyServer(function(session, input, output) {
       )
     })
     
-    # Rank Barchart of selected variable
+    # Rank Barchart of selected variable for county and state
     rank_state<- if(input$mean_median=="Mean"){
       as_tibble(data_filtered) %>%
         group_by(STATE_NAME) %>% 
-        summarise(median_x = mean(!! sym(input$selected_variable))) %>% 
+        summarise(median_x = mean(!! sym(input$selected_variable), na.rm=T)) %>% 
         ggplot(aes(x=reorder(STATE_NAME, median_x),y=median_x, fill = STATE_NAME))+
         geom_bar(stat = "identity")+
         theme_bw()+
@@ -1299,7 +1289,7 @@ shinyServer(function(session, input, output) {
     else{
       as_tibble(data_filtered) %>%
         group_by(STATE_NAME) %>% 
-        summarise(median_x = median(!! sym(input$selected_variable))) %>% 
+        summarise(median_x = median(!! sym(input$selected_variable), na.rm=T)) %>% 
         ggplot(aes(x=reorder(STATE_NAME, median_x),y=median_x, fill = STATE_NAME))+
         geom_bar(stat = "identity")+          
         theme_bw()+
@@ -1374,7 +1364,7 @@ shinyServer(function(session, input, output) {
       }
     })
     
-    #TABLE TAB
+    #TABLE TAB----------------------------------------------------------------------
     
     # Customized data table
     output$datatable_customized<- renderDataTable(
@@ -1387,7 +1377,7 @@ shinyServer(function(session, input, output) {
     
     # Full data table
     output$datatable_full<- renderDataTable(
-      as_tibble(us_county_covid),
+      as_tibble(data_filtered),
       options = list(
         pageLength=10, scrollX='400px'),
       rownames=FALSE,
@@ -1515,28 +1505,12 @@ shinyServer(function(session, input, output) {
       )
     }
     
-    
     output$download_scatter <- download_plot_corr('scatter', scatter)
     output$download_corr_heatmap <- download_plot_corr_heatmap('corr_heatmap', corr_heatmap)
     output$download_inequality_bar <- download_plot('inequality_bar',inequality_bar)
     output$download_popbar <- download_plot('popbar', popbar)
     output$download_rank_state <- download_plot_state('rank_state', rank_state)
     output$download_rank_county <- download_plot_county(paste0('rank_county',"_",input$state_rank), rank_county)
-    
-    output$download_map <- downloadHandler(
-      filename = paste0( Sys.Date()
-                         , "_customLeafletmap"
-                         , ".pdf"
-      )
-      
-      , content = function(file) {
-        mapshot( x = initial_map
-                 , file = file
-                 , cliprect = "viewport" # the clipping rectangle matches the height & width from the viewing port
-                 , selfcontained = FALSE # when this was not specified, the function for produced a PDF of two pages: one of the leaflet map, the other a blank page.
-        )
-      }
-    )
     
   })
 

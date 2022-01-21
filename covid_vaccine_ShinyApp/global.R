@@ -1,5 +1,5 @@
 # COVID in the U.S.
-# 
+
 library(shiny)
 library(shinydashboard)
 library(tidyverse)
@@ -13,7 +13,6 @@ library(stringr)
 library(plotly)
 library(ggExtra)
 library(ggpmisc)
-library(ggbeeswarm)
 library(DT)
 library(shinyWidgets)
 library(dashboardthemes)
@@ -24,12 +23,10 @@ library(repr)
 library(rlang)
 library(xlsx)
 library(shinybusy)
-library(mapview)
+library(rmarkdown)
 
-
- 
 # # set working directory
-setwd("~/Documents/Data Science/bootcamp/NSS/DS5/nss_projects/covid_vaccine/covid_vaccine_ShinyApp")
+# setwd("~/Documents/Data Science/bootcamp/NSS/DS5/nss_projects/covid_vaccine/covid_vaccine_ShinyApp")
 
 # #####################################################################################################
 # # Geospatial data with demographic info
@@ -91,11 +88,9 @@ us_county_covid <- left_join(us_county_covid, covid_vaccine_hesitancy, by = c("F
 us_county_covid <- left_join(us_county_covid, state_lat_lon, by=c("STATE_NAME"="state_name"))
 us_county_covid <- left_join(us_county_covid, covid_case_test, by =c("FIPS"="fips_code"))
 
-
 # calculate and add booster_doses_pop_pct column, factor metro_status, svi_category, and cvac_category, filter out four regions
 us_county_covid <- us_county_covid %>%
   mutate(Cases_per_100k_last_7_days=round(as.numeric(gsub(",","",cases_per_100k_7_day_count)),0),
-         test_positivity_rate_last_7_d=as.numeric(percent_test_results_reported),
          booster_doses_pop_pct = round(booster_doses/(series_complete_yes/series_complete_pop_pct), 1),
          booster_doses_18pluspop_pct = round(booster_doses_18plus/(series_complete_18plus/series_complete_18pluspop_pct), 1),
          booster_doses_65pluspop_pct = round(booster_doses_65plus/(series_complete_65plus/series_complete_65pluspop_pct), 1),
@@ -115,10 +110,8 @@ us_county_covid <- us_county_covid %>%
 
   ) %>%
   filter(!STATE_NAME %in% c("Puerto Rico"))
-# , "District of Columbia", "Alaska", "Hawaii"
 
 # labels for legends and titles
-
 choices_data_type <- c('Cases per 100k Last 7 Days',
                        'Test Positivity Rate Last 7 Days',
                        'Hospitalizations per 100k Last 7 Days', 

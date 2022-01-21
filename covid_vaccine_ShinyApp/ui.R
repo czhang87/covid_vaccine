@@ -3,9 +3,7 @@
 # Define UI for application 
 shinyUI(
 
-  
   dashboardPage(
-    
     
     dashboardHeader(
       title="COVID-19 in the U.S."
@@ -76,12 +74,13 @@ shinyUI(
           selectInput(
             inputId = "xvariable",
             label = "Select a Variable For The X-axis",
-            choices = choices_xvariable),
+            choices = choices_xvariable,
+            selected = "booster_doses_pop_pct"),
           selectInput(
             inputId = "yvariable",
             label = "Select a Variable For The Y-axis",
             choices = choices_yvariable,
-            selected  = "test_positivity_rate_last_7_d")
+            selected  = "ability_to_handle_a_covid")
         ),
         
         conditionalPanel(
@@ -172,10 +171,7 @@ shinyUI(
         tabItem(
           tabName = "map",
           tags$style(type = "text/css", "#map {height: calc(100vh - 80px) !important;}"),# increase the height of the map
-          downloadButton( outputId = "download_map"),
           leafletOutput("map")
-          
-          
         ),
         
         # Analysis tab
@@ -334,7 +330,7 @@ shinyUI(
         # About tab
         tabItem(
           tabName = "about",
-          h1("About")
+          includeHTML(rmarkdown::render("page/about.Rmd"))
         )
         
       )
