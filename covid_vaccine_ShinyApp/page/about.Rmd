@@ -16,7 +16,7 @@ The Surgo Covid-19 Vaccine Coverage Index (CVAC) captures supply- and demand-rel
 
 ### Data Source
 
-The data used in this Shiny App covers counties in 50 U.S. states. 
+The data used in this Shiny App covers counties in 50 U.S. states and District of Columbia. 
 
 *  [Geo Data of the U.S. counties (ArcGIS Hub)](https://hub.arcgis.com/datasets/esri::usa-counties/about)
 * [Community Profile Report Counties (HHS)](https://protect-public.hhs.gov/datasets/cad5b70395a04b95936f0286be30e282/explore?showTable=true)

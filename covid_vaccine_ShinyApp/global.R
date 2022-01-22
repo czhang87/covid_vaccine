@@ -68,14 +68,6 @@ covid_vaccine_hesitancy <- covid_vaccine_hesitancy %>%
   mutate(fips_code = as.character(fips_code)) %>%
   mutate(fips_code = str_pad(fips_code, 5, pad = "0"))
 
-# CDC COVID cases and tests
-url<- "https://data.cdc.gov/resource/8396-v7yb.json?$select=max(report_date)"
-response <- GET(url = url)
-covid_case_test <- content(response, as = "text") %>% fromJSON()
-url<- paste0("https://data.cdc.gov/resource/8396-v7yb.json?$limit=5000&report_date=", covid_case_test[1,1])
-response <- GET(url = url)
-covid_case_test <- content(response, as = "text") %>% fromJSON()
-
 # Latitude and longitude of states
 state_lat_lon <- read_csv("data/state_lat_lon.csv")  
 state_lat_lon
@@ -86,12 +78,11 @@ us_county_covid <- left_join(us_county_covid, covid_vaccination, by = c("FIPS"="
 us_county_covid <- left_join(us_county_covid, case_hospitalization_death, by = c("FIPS"="FIPS_code"))
 us_county_covid <- left_join(us_county_covid, covid_vaccine_hesitancy, by = c("FIPS"="fips_code"))
 us_county_covid <- left_join(us_county_covid, state_lat_lon, by=c("STATE_NAME"="state_name"))
-us_county_covid <- left_join(us_county_covid, covid_case_test, by =c("FIPS"="fips_code"))
+
 
 # calculate and add booster_doses_pop_pct column, factor metro_status, svi_category, and cvac_category, filter out four regions
 us_county_covid <- us_county_covid %>%
-  mutate(Cases_per_100k_last_7_days=round(as.numeric(gsub(",","",cases_per_100k_7_day_count)),0),
-         booster_doses_pop_pct = round(booster_doses/(series_complete_yes/series_complete_pop_pct), 1),
+  mutate(booster_doses_pop_pct = round(booster_doses/(series_complete_yes/series_complete_pop_pct), 1),
          booster_doses_18pluspop_pct = round(booster_doses_18plus/(series_complete_18plus/series_complete_18pluspop_pct), 1),
          booster_doses_65pluspop_pct = round(booster_doses_65plus/(series_complete_65plus/series_complete_65pluspop_pct), 1),
          estimated_hesitant = round(estimated_hesitant*100,1),
@@ -126,7 +117,6 @@ choices_xvariable <- c("Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days"
                        "Test Positivity Rate Last 7 Days" = "test_positivity_rate_last_7_d",
                        "Hospitalizations per 100k Last 7 Days" = "conf_covid_admit_100k_last_7",
                        "Percentage of ICU Occupied by COVID Patients" = "pct_icu_covid",
-                       "Percentage of Ventilator Used by COVID Patients" = "pct_vent_covid",
                        "Deaths per 100k Last 7 Days" = "Deaths_per_100k_last_7_days",
                        "At Least One Dose in All Age Groups"="administered_dose1_pop_pct",
                        "Fully Vaccinated in All Age Groups" = "series_complete_pop_pct",
@@ -138,7 +128,6 @@ choices_yvariable <- c("Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days"
                        "Test Positivity Rate Last 7 Days" = "test_positivity_rate_last_7_d",
                        "Hospitalizations per 100k Last 7 Days" = "conf_covid_admit_100k_last_7",
                        "Percentage of ICU Occupied by COVID Patients" = "pct_icu_covid",
-                       "Percentage of Ventilator Used by COVID Patients" = "pct_vent_covid",
                        "Deaths per 100k Last 7 Days" = "Deaths_per_100k_last_7_days",
                        "At Least One Dose in All Age Groups"="administered_dose1_pop_pct",
                        "Fully Vaccinated in All Age Groups" = "series_complete_pop_pct",
@@ -166,8 +155,7 @@ switch_labels <- c("Cases per 100k Last 7 Days"="Cases_per_100k_last_7_days",
                    "Percentage of COVID-19 Vaccine Hesitancy" = "estimated_hesitant",
                    "CDC Social Vulnerability Index" = "social_vulnerability_index",
                    "COVID-19 Vaccine Coverage Index" = "ability_to_handle_a_covid",
-                   "Percentage of ICU Occupied by COVID Patients" = "pct_icu_covid",
-                   "Percentage of Ventilator Used by COVID Patients" = "pct_vent_covid")
+                   "Percentage of ICU Occupied by COVID Patients" = "pct_icu_covid")
 hue_labels<- c("Metropolitan Status"="metro_status",
                "CDC Social Vulnerability Index" = "svi_category",
                "COVID-19 Vaccine Coverage Index" = "cvac_category")
@@ -180,7 +168,6 @@ table_columns<- c("County"="NAME",
                   "Test Positivity Rate Last 7 Days" = "test_positivity_rate_last_7_d",
                   "Hospitalizations per 100k Last 7 Days" = "conf_covid_admit_100k_last_7",
                   "Percentage of ICU Occupied by COVID patients" = "pct_icu_covid",
-                  "Percentage of Ventilator Used by COVID patients" = "pct_vent_covid",
                   "Deaths per 100k Last 7 Days" = "Deaths_per_100k_last_7_days",
                   "At Least One Dose in All Age Groups"="administered_dose1_pop_pct",
                   "Fully Vaccinated in All Age Groups" = "series_complete_pop_pct",
@@ -195,7 +182,6 @@ labels_corr<- c("Cases_per_100k_last_7_days" = "Cases per 100k Last 7 Days",
                 "test_positivity_rate_last_7_d"="Test Positivity Rate Last 7 Days",
                 "conf_covid_admit_100k_last_7"="Hospitalizations per 100k Last 7 Days",
                 "pct_icu_covid"="Percentage of ICU Occupied by COVID patients",
-                "pct_vent_covid"="Percentage of Ventilator Used by COVID patients",
                 "Deaths_per_100k_last_7_days"="Deaths per 100k Last 7 Days",
                 "administered_dose1_pop_pct"="At Least One Dose in All Age Groups",
                 "series_complete_pop_pct"= "Fully Vaccinated in All Age Groups",

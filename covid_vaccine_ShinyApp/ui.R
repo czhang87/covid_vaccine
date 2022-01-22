@@ -243,13 +243,14 @@ shinyUI(
                          valueBoxOutput("box_case",3),
                          valueBoxOutput("box_test",3),
                          valueBoxOutput("box_hospitalization",3),
-                         valueBoxOutput("box_inpatient",3)
+                         valueBoxOutput("box_death",3)
                        ),
                        fluidRow(
-                         valueBoxOutput("box_icu",3),
+                         valueBoxOutput("box_inpatient",3),
+                         valueBoxOutput("box_inpatient_covid",3),
                          valueBoxOutput("box_staffed_icu",3),
-                         valueBoxOutput("box_vent",3),
-                         valueBoxOutput("box_death",3)
+                         valueBoxOutput("box_icu",3)
+                         
                        ),
                        fluidRow(
                          valueBoxOutput("box_1dose",3),

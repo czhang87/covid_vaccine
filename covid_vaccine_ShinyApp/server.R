@@ -8,8 +8,8 @@ shinyServer(function(session, input, output) {
     
     updateSelectInput(session, "data_type", choices = choices_data_type)
     updateRadioButtons(session, "vaccination_status", choices = choices_vaccination_status)
-    updateSelectInput(session, "xvariable", choices = choices_xvariable)
-    updateSelectInput(session, "yvariable",choices = choices_yvariable, selected = "test_positivity_rate_last_7_d")
+    updateSelectInput(session, "xvariable", choices = choices_xvariable, selected = "booster_doses_pop_pct")
+    updateSelectInput(session, "yvariable",choices = choices_yvariable, selected = "ability_to_handle_a_covid")
     updateSelectInput(session, "selected_variable",choices = choices_yvariable)
     updateSelectInput(session, "mean_median", choices = c("Mean", "Median"))
     updateSelectInput(session, "hue", choices = hue_labels)
@@ -130,7 +130,7 @@ shinyServer(function(session, input, output) {
     labels_cases <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
       "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
-      "Cases per 100k Last 7 Days:", data_filtered$Cases_per_100k_last_7_days,"<br/>",
+      "Cases per 100k Last 7 Days:", format(data_filtered$Cases_per_100k_last_7_days, big.mark=","),"<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
       "CDC Social Vulnerability Index: ", data_filtered$svi_category,"<br/>"
     ) %>% lapply(htmltools::HTML)
@@ -139,7 +139,7 @@ shinyServer(function(session, input, output) {
     labels_tests <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
       "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
-      "Test Positivity Rate Last 7 Days:", data_filtered$test_positivity_rate_last_7_d,"<br/>",
+      "Test Positivity Rate Last 7 Days:", data_filtered$test_positivity_rate_last_7_d,"%<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
       "CDC Social Vulnerability Index: ", data_filtered$svi_category,"<br/>"
     ) %>% lapply(htmltools::HTML)
@@ -148,7 +148,7 @@ shinyServer(function(session, input, output) {
     labels_hospitalizations <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
       "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
-      "Hospitalizations per 100k Last 7 Days:", data_filtered$conf_covid_admit_100k_last_7,"<br/>",
+      "Hospitalizations per 100k Last 7 Days:", format(data_filtered$conf_covid_admit_100k_last_7, big.mark=","),"<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
       "CDC Social Vulnerability Index: ", data_filtered$svi_category,"<br/>"
     ) %>% lapply(htmltools::HTML)
@@ -157,7 +157,7 @@ shinyServer(function(session, input, output) {
     labels_deaths <- paste(
       "<strong>",data_filtered$NAME,", ", data_filtered$STATE_NAME, "</strong><br/>",
       "Population:", format(data_filtered$POPULATION, big.mark = ",", scientific = F), "<br/>",
-      "Deaths per 100k Last 7 Days:", data_filtered$Deaths_per_100k_last_7_days,"<br/>",
+      "Deaths per 100k Last 7 Days:", format(data_filtered$Deaths_per_100k_last_7_days, big.mark=","),"<br/>",
       "Metro status: ", data_filtered$metro_status,"<br/>",
       "CDC Social Vulnerability Index: ", data_filtered$svi_category,"<br/>"
     ) %>% lapply(htmltools::HTML)
@@ -190,11 +190,11 @@ shinyServer(function(session, input, output) {
     
     # Figure Legend titles
     titles_cases<- "Cases per 100k Last 7 Days"
-    titles_tests <- "Test Positivity Rate Last 7 Days"
+    titles_tests <- "Test Positivity Rate Last 7 Days (%)"
     titles_hospitalizations <- "Hospitalizations per 100k Last 7 Days"
     titles_deaths <- "Deaths per 100k Last 7 Days"
-    titles_vaccination <- "Vaccination Percentage"
-    titles_hesitancy <- "COVID-19 Vaccine Hesitancy Percentage"
+    titles_vaccination <- "Vaccination Percentage (%)"
+    titles_hesitancy <- "COVID-19 Vaccine Hesitancy Percentage (%)"
     titles_svi <- "CDC Social Vulnerability Index"
     titles_cvac <- "COVID-19 Vaccine Coverage Index"
     
@@ -959,7 +959,6 @@ shinyServer(function(session, input, output) {
              test_positivity_rate_last_7_d,
              conf_covid_admit_100k_last_7,
              pct_icu_covid,
-             pct_vent_covid,
              Deaths_per_100k_last_7_days,
              administered_dose1_pop_pct,
              series_complete_pop_pct,
@@ -975,7 +974,6 @@ shinyServer(function(session, input, output) {
              test_positivity_rate_last_7_d,
              conf_covid_admit_100k_last_7,
              pct_icu_covid,
-             pct_vent_covid,
              Deaths_per_100k_last_7_days,
              administered_dose1_pop_pct,
              series_complete_pop_pct,
@@ -1135,6 +1133,18 @@ shinyServer(function(session, input, output) {
       )
     })
     
+    output$box_death <- renderValueBox({
+      valueBox(
+        paste0(data_filtered %>%
+                 filter(STATE_NAME==input$state_rank,
+                        NAME==input$county) %>%
+                 pull(Deaths_per_100k_last_7_days)),
+        "Deaths per 100k Last 7 Days",
+        icon = icon("skull-crossbones"),
+        color = "red"
+      )
+    })
+    
     output$box_inpatient <- renderValueBox({
       valueBox(
         paste0(data_filtered %>% 
@@ -1147,14 +1157,14 @@ shinyServer(function(session, input, output) {
       )
     })
     
-    output$box_icu <- renderValueBox({
+    output$box_inpatient_covid <- renderValueBox({
       valueBox(
-        paste0(data_filtered %>%
-                 filter(STATE_NAME==input$state_rank,
-                        NAME==input$county) %>%
-                 pull(pct_icu_covid), "%"),
-        "ICU Occupied by COVID Patients",
-        icon = icon("procedures"),
+        paste0(data_filtered %>% 
+                 filter(STATE_NAME==input$state_rank, 
+                        NAME==input$county) %>% 
+                 pull(pct_inpatient_covid), "%"), 
+        "Inpatient Beds Occupied by COVID Patients", 
+        icon = icon("hospital"),
         color = "red"
       )
     })
@@ -1171,26 +1181,14 @@ shinyServer(function(session, input, output) {
       )
     })
     
-    output$box_vent <- renderValueBox({
+    output$box_icu <- renderValueBox({
       valueBox(
         paste0(data_filtered %>%
                  filter(STATE_NAME==input$state_rank,
                         NAME==input$county) %>%
-                 pull(pct_vent_covid), "%"),
-        "Ventilator Used by COVID Patients",
-        icon = icon("lungs"),
-        color = "red"
-      )
-    })
-    
-    output$box_death <- renderValueBox({
-      valueBox(
-        paste0(data_filtered %>%
-                 filter(STATE_NAME==input$state_rank,
-                        NAME==input$county) %>%
-                 pull(Deaths_per_100k_last_7_days)),
-        "Deaths per 100k Last 7 Days",
-        icon = icon("skull-crossbones"),
+                 pull(pct_icu_covid), "%"),
+        "ICU Occupied by COVID Patients",
+        icon = icon("procedures"),
         color = "red"
       )
     })
@@ -1334,7 +1332,7 @@ shinyServer(function(session, input, output) {
     output$rank_county_ui <- renderUI({
       if(as_tibble(data_filtered[data_filtered$STATE_NAME==input$state_rank,])
          %>%count()
-         %>%pull(n) < 5
+         %>%pull(n) < 6
       ){
         plotOutput("rank_county", width = 900, height = 200)
       }
@@ -1351,13 +1349,18 @@ shinyServer(function(session, input, output) {
       }
       else if(as_tibble(data_filtered[data_filtered$STATE_NAME==input$state_rank,])
               %>%count()
-              %>%pull(n) < 106){
-        plotOutput("rank_county", width = 900, height = 1100)
+              %>%pull(n) < 100){
+        plotOutput("rank_county", width = 900, height = 1500)
+      }
+      else if(as_tibble(data_filtered[data_filtered$STATE_NAME==input$state_rank,])
+              %>%count()
+              %>%pull(n) < 134){
+        plotOutput("rank_county", width = 900, height = 1800)
       }
       else if(as_tibble(data_filtered[data_filtered$STATE_NAME==input$state_rank,])
               %>%count()
               %>%pull(n) < 160){
-        plotOutput("rank_county", width = 900, height = 1200)
+        plotOutput("rank_county", width = 900, height = 2400)
       }
       else{
         plotOutput("rank_county", width = 900, height = 3000)
