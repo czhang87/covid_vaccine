@@ -24,22 +24,21 @@ library(rlang)
 library(xlsx)
 library(shinybusy)
 library(rmarkdown)
+library(dashboardthemes)
 
-# # set working directory
-# setwd("~/Documents/Data Science/bootcamp/NSS/DS5/nss_projects/covid_vaccine/covid_vaccine_ShinyApp")
 
-# #####################################################################################################
-# # Geospatial data with demographic info
-# us_county_covid <- read_sf("data/USA_Counties/USA_Counties.shp")
+# # #####################################################################################################
+# # # Geospatial data with demographic info
+# # us_county_covid <- read_sf("data/USA_Counties/USA_Counties.shp")
+# # 
+# # # simplify polygons
+# # us_county_covid <- rmapshaper::ms_simplify(us_county_covid, keep = 0.05, keep_shapes = TRUE)
+# # 
+# # # write simplified polygons to RDS
+# # us_county_covid %>%
+# #   write_rds("data/us_county_covid.RDS")
+# # #####################################################################################################
 # 
-# # simplify polygons
-# us_county_covid <- rmapshaper::ms_simplify(us_county_covid, keep = 0.05, keep_shapes = TRUE)
-# 
-# # write simplified polygons to RDS
-# us_county_covid %>%
-#   write_rds("data/us_county_covid.RDS")
-# #####################################################################################################
-
 # read simplified polygons from RDS to data frame
 us_county_covid <- read_rds("data/us_county_covid.RDS")
 
@@ -69,7 +68,7 @@ covid_vaccine_hesitancy <- covid_vaccine_hesitancy %>%
   mutate(fips_code = str_pad(fips_code, 5, pad = "0"))
 
 # Latitude and longitude of states
-state_lat_lon <- read_csv("data/state_lat_lon.csv")  
+state_lat_lon <- read_csv("data/state_lat_lon.csv")
 state_lat_lon
 
 # merge data frame by FIPS
@@ -80,7 +79,7 @@ us_county_covid <- left_join(us_county_covid, covid_vaccine_hesitancy, by = c("F
 us_county_covid <- left_join(us_county_covid, state_lat_lon, by=c("STATE_NAME"="state_name"))
 
 
-# calculate and add booster_doses_pop_pct column, factor metro_status, svi_category, and cvac_category, filter out four regions
+# calculate and add booster_doses_pop_pct column, factor metro_status, svi_category, and cvac_category, filter out one region
 us_county_covid <- us_county_covid %>%
   mutate(booster_doses_pop_pct = round(booster_doses/(series_complete_yes/series_complete_pop_pct), 1),
          booster_doses_18pluspop_pct = round(booster_doses_18plus/(series_complete_18plus/series_complete_18pluspop_pct), 1),
@@ -101,6 +100,7 @@ us_county_covid <- us_county_covid %>%
 
   ) %>%
   filter(!STATE_NAME %in% c("Puerto Rico"))
+
 
 # labels for legends and titles
 choices_data_type <- c('Cases per 100k Last 7 Days',

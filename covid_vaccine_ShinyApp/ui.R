@@ -40,7 +40,8 @@ shinyUI(
           condition = "input.tabs!='about'",
           actionBttn(
             inputId = "reset_input",
-            label = "Reset Input")
+            label = "Reset Input",
+            style = "material-flat")
         ),
         
         # conditional panel of map tab
@@ -163,6 +164,10 @@ shinyUI(
     ),
     
     dashboardBody(
+      
+      shinyDashboardThemes(
+        theme = "blue_gradient"
+      ),
       add_busy_spinner(spin = "fading-circle"),
       
       tabItems(
@@ -199,7 +204,7 @@ shinyUI(
                        br(),
                        br(),
                        div(
-                         style = "position: absolute; left: 4em; top: 36em;",
+                         style = "position: absolute; left: 4em; top: 35em;",
                          dropdown(
                            downloadButton(outputId = "download_corr_heatmap", label = "Download Plot"),
                            size = "xs",
