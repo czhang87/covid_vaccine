@@ -1518,9 +1518,10 @@ shinyServer(function(session, input, output) {
     
     # ABOUT TAB-------------------------------------------
     output$data_date <- renderPrint(
-      HTML("The vaccination data is updated on <b>",
-           as.character(as.POSIXct(us_county_covid$date, format= "%m/%d/%Y", tz="Europe/London")[1]),
-           "</b>.", "The data of cases, hospitalization, and death is updated on ", as.character(us_county_covid$last_updated/1000)[1]
+      HTML("The COVDI-19 epidemiology and vaccination data are updated regularly. The vaccination data are updated on <b>",
+           as.character(as_date(us_county_covid$date)[1]),
+           "</b>, ", "abd the data of cases, hospitalizations, and deaths are updated on <b>", 
+           as.character(as_date(as_datetime(us_county_covid$last_updated/1000))[1]), "</b>." 
       )
     )
   })
