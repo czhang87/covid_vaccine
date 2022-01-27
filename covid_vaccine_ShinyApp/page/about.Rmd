@@ -2,7 +2,23 @@
 title: "about"
 output: html_fragment
 ---
-# About
+### Indicators
+
+* COVID-19 Epidemiology
+  - Cases per 100k Last 7 Days Moving Average
+  - Test Positivity Rate Last 7 Days Moving Average
+  - Hospitalizations per 100k Last 7 Days Moving Average
+  - Percentage of ICU Occupied by COVID-19 Patients
+  - Deaths per 100k Last 7 Days Moving Average
+* COVID-19 Vaccination
+  - At Least One Dose
+  - Fully Vaccinated 
+  - Booster (or Additional) Dose
+  - Percentage of COVID-19 Vaccine Hesitancy
+* Contexts for Inequality Analysis
+  - Metro Status: Metro and Non-metro
+  - CDC Social Vulnerability Index (SVI): community vulnerability to disaster, disease outbreak, and etc.
+  - COVID-19 Vaccine Coverage Index (CVAC): supply- and demand-related challenges that hinder the vaccine coverage in the U.S.
 
 The [CDC Social Vulnerability Index](https://data.cdc.gov/stories/s/Vaccine-Hesitancy-for-COVID-19/cnd2-a6zw/) and [COVID-19 Vaccine Coverage Index](https://data.cdc.gov/stories/s/Vaccine-Hesitancy-for-COVID-19/cnd2-a6zw/) are used as the context of disparity/inequality anaylysis in this Shiny App. 
 
@@ -16,7 +32,7 @@ The Surgo Covid-19 Vaccine Coverage Index (CVAC) captures supply- and demand-rel
 
 ### Data Source
 
-The data used in this Shiny App covers counties in 50 U.S. states and District of Columbia. 
+The data used in this Shiny App covers counties in 48 contiguous U.S. states and District of Columbia. 
 
 *  [Geo Data of the U.S. counties (ArcGIS Hub)](https://hub.arcgis.com/datasets/esri::usa-counties/about)
 * [Community Profile Report Counties (HHS)](https://protect-public.hhs.gov/datasets/cad5b70395a04b95936f0286be30e282/explore?showTable=true)

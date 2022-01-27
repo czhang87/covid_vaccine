@@ -29,14 +29,14 @@ library(dashboardthemes)
 
 # # #####################################################################################################
 # # # Geospatial data with demographic info
-# # us_county_covid <- read_sf("data/USA_Counties/USA_Counties.shp")
-# # 
-# # # simplify polygons
-# # us_county_covid <- rmapshaper::ms_simplify(us_county_covid, keep = 0.05, keep_shapes = TRUE)
-# # 
-# # # write simplified polygons to RDS
-# # us_county_covid %>%
-# #   write_rds("data/us_county_covid.RDS")
+# us_county_covid <- read_sf("data/USA_Counties/USA_Counties.shp")
+# 
+# # simplify polygons
+# us_county_covid <- rmapshaper::ms_simplify(us_county_covid, keep = 0.001, keep_shapes = F)
+# 
+# # write simplified polygons to RDS
+# us_county_covid %>%
+#   write_rds("data/us_county_covid.RDS")
 # # #####################################################################################################
 # 
 # read simplified polygons from RDS to data frame
@@ -99,7 +99,7 @@ us_county_covid <- us_county_covid %>%
                                                           "Very High Concern"))
 
   ) %>%
-  filter(!STATE_NAME %in% c("Puerto Rico"))
+  filter(!STATE_NAME %in% c("Puerto Rico", "Alaska","Hawaii"))
 
 
 # labels for legends and titles

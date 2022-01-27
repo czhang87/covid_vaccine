@@ -336,6 +336,8 @@ shinyUI(
         # About tab
         tabItem(
           tabName = "about",
+          h1("About"),
+          uiOutput("data_date"),
           includeHTML(rmarkdown::render("page/about.Rmd"))
         )
         
