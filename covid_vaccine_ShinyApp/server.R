@@ -69,10 +69,6 @@ shinyServer(function(session, input, output) {
         filter(STATE_NAME %in% input$state)
     }
     
-    # update the county drop down menu based on the selection of the state drop down menu
-    updateSelectInput(session, "county",
-                      choices = data_filtered[data_filtered$STATE_NAME == input$state_rank,]$NAME)
-    
     req(nrow(data_filtered)>0)
     
     # labels of vaccination percentage for the map popup
@@ -1525,5 +1521,26 @@ shinyServer(function(session, input, output) {
       )
     )
   })
+  
+  observe({
+    # filter data based on metro status and population
+    data_filtered <- us_county_covid %>%
+      filter(metro_status %in% input$metro) %>% 
+      filter(between(POPULATION, input$population[1], input$population[2]))
+    
+    # filter data based on state
+    if("United States" %in% input$state){
+      data_filtered <- data_filtered
+    }
+    else{
+      data_filtered <- data_filtered %>%
+        filter(STATE_NAME %in% input$state)
+    }
+    
+    # # update the county drop down menu based on the selection of the state drop down menu
+    updateSelectInput(session, "county",
+                      choices = data_filtered[data_filtered$STATE_NAME == input$state_rank,]$NAME)
+  })
+  
   
 })
