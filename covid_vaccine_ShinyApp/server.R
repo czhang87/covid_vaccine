@@ -1,6 +1,6 @@
 # COVID in the U.S.
 
-# Define server logic required to draw a histogram
+# Define server logic
 shinyServer(function(session, input, output) {
   
   # Reset Input Button
@@ -55,7 +55,7 @@ shinyServer(function(session, input, output) {
   # Reactive components in observe({})
   observe({
     
-    # filter data based on metro status
+    # filter data based on metro status and population
     data_filtered <- us_county_covid %>%
       filter(metro_status %in% input$metro) %>% 
       filter(between(POPULATION, input$population[1], input$population[2]))
@@ -1525,5 +1525,5 @@ shinyServer(function(session, input, output) {
       )
     )
   })
-
+  
 })
